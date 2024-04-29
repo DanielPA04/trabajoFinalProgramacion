@@ -9,11 +9,11 @@ import com.hibernate.util.HibernateUtil;
 
 public class ArtistaDAO {
 
-	public void insertCiudad(Artista p) {
+	public void insertArtista(Artista a) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
-			session.persist(p);
+			session.persist(a);
 			transaction.commit();
 		} catch (Exception e) {
 			if (transaction != null) {
@@ -22,11 +22,11 @@ public class ArtistaDAO {
 		}
 	}
 
-	public void updateArtista(Artista p) {
+	public void updateArtista(Artista a) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
-			session.merge(p);
+			session.merge(a);
 			transaction.commit();
 		} catch (Exception e) {
 			if (transaction != null) {
