@@ -24,7 +24,7 @@ public class Artista {
 	@Column(name = "fechaNac")
 	LocalDate fechaNac;
 
-	@Column(name = "imagen")
+	@Column(name = "imagen", columnDefinition = "mediumblob")
 	Blob imagen;
 
 	// int puntuacion;
