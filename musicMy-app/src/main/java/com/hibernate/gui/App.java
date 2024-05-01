@@ -1,6 +1,7 @@
 package com.hibernate.gui;
 
 import java.awt.EventQueue;
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,9 @@ import com.hibernate.model.Artista;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
@@ -23,15 +26,16 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.awt.event.ActionEvent;
-import javax.swing.JTextArea;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 public class App {
 
@@ -46,7 +50,7 @@ public class App {
 	private JTextField txtNombre;
 	private JTextField txtCodigo;
 	private JTextField txtImagen;
-	private JTextArea txtrArtista;
+	private JLabel lblFotoArtista;
 	Blob foto = null;
 
 	public void loadData() {
@@ -73,7 +77,8 @@ public class App {
 		txtNombre.setText(null);
 		txtCodigo.setText(null);
 		txtImagen.setText(null);
-		txtrArtista.setText(null);
+		lblFotoArtista.setText(null);
+		lblFotoArtista.setIcon(null);
 	}
 
 	public static LocalDate cambiarFormatoFechaJavaNat(String fecha) {
@@ -243,9 +248,9 @@ public class App {
 		btnEliminar.setBounds(97, 387, 117, 25);
 		frame.getContentPane().add(btnEliminar);
 
-		txtrArtista = new JTextArea();
-		txtrArtista.setBounds(332, 1, 139, 189);
-		frame.getContentPane().add(txtrArtista);
+		lblFotoArtista = new JLabel("");
+		lblFotoArtista.setBounds(330, 1, 114, 189);
+		frame.getContentPane().add(lblFotoArtista);
 		// Botones Artista
 		// Crear
 		btnCrear.addActionListener(new ActionListener() {
@@ -323,7 +328,7 @@ public class App {
 					artista.setFechaNac(fechaNac);
 					artista.setImagen(foto);
 					artistaDAO.updateArtista(artista);
-					
+
 					loadData();
 					clearData();
 
@@ -363,16 +368,26 @@ public class App {
 					JFileChooser chooser = new JFileChooser();
 					chooser.showOpenDialog(null);
 					File f = chooser.getSelectedFile();
-					String fileName = f.getAbsolutePath();
-					
+//					String fileName = f.getAbsolutePath();
 					try {
-						foto=fileToBlob(f);
+						foto = fileToBlob(f);
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
 
+					InputStream in = foto.getBinaryStream();
+					BufferedImage img = ImageIO.read(in);
+					Image dimg = img.getScaledInstance(lblFotoArtista.getWidth(), lblFotoArtista.getHeight(),
+							Image.SCALE_SMOOTH);
+					ImageIcon icon = new ImageIcon(dimg);
+
+					lblFotoArtista.setIcon(icon);
 				} catch (NullPointerException e1) {
 					e1.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (SQLException e) {
+					e.printStackTrace();
 				}
 			}
 		});
