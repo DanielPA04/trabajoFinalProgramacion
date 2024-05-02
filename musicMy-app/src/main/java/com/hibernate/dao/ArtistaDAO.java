@@ -1,5 +1,6 @@
 package com.hibernate.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -35,7 +36,7 @@ public class ArtistaDAO {
 		}
 	}
 
-	public void deleteArtista(int id) {
+	public void deleteArtista(int id) throws SQLException {
 		Transaction transaction = null;
 		Artista a = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -46,6 +47,7 @@ public class ArtistaDAO {
 		} catch (Exception e) {
 			if (transaction != null) {
 				transaction.rollback();
+				throw new SQLException("El artista no ha podido ser eliminado");
 			}
 		}
 	}

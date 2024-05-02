@@ -403,16 +403,18 @@ public class App {
 			public void actionPerformed(ActionEvent arg0) {
 
 				if (!txtCodigoArtista.getText().isEmpty()) {
-
 					if (JOptionPane.showConfirmDialog(null, "¿Seguro que quieres eliminarla?", "Eliminar",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 						int cod = Integer.valueOf(txtCodigoArtista.getText());
+						try {
 						artistaDAO.deleteArtista(cod);
 						JOptionPane.showMessageDialog(null, "Artista eliminado/a");
 						loadData();
+						}catch (SQLException e) {
+							JOptionPane.showMessageDialog(null, "Artista no eliminado/a, tiene albumes asociados, eliminar los albumes primero");
+						}
 						clearAllData();
 					}
-
 				} else {
 					JOptionPane.showMessageDialog(null, "Ningun artista seleccionado, realice un clic en la tabla");
 				}
@@ -428,8 +430,7 @@ public class App {
 					JFileChooser chooser = new JFileChooser();
 					chooser.showOpenDialog(null);
 					File f = chooser.getSelectedFile();
-					String fileName = f.getAbsolutePath();
-					txtImagenArtista.setText(fileName);
+					txtImagenArtista.setText(f.getAbsolutePath());
 
 					try {
 						fotoArtista = fileToBlob(f);
@@ -454,6 +455,7 @@ public class App {
 		tableArtista.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				clearAlbumData();
 				int index = tableArtista.getSelectedRow();
 				TableModel modelArtista = tableArtista.getModel();
 				codArtistaSelec = (int) modelArtista.getValueAt(index, 0);
@@ -642,7 +644,7 @@ public class App {
 					return;
 				}
 				if (descripcion == null || descripcion.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Discografica vacía");
+					JOptionPane.showMessageDialog(null, "Descripcion vacía");
 					txtrDescripcionAlbum.requestFocus();
 					return;
 				}
@@ -667,10 +669,10 @@ public class App {
 				clearAlbumData();
 
 				if (codS == null || codS.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Usuario creado correctamente");
+					JOptionPane.showMessageDialog(null, "Album creado correctamente");
 				} else {
 					JOptionPane.showMessageDialog(null,
-							"Usuario creado correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
+							"Album creado correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
 				}
 
 			}
@@ -708,7 +710,7 @@ public class App {
 						return;
 					}
 					if (descripcion == null || descripcion.trim().isEmpty()) {
-						JOptionPane.showMessageDialog(null, "Discografica vacía");
+						JOptionPane.showMessageDialog(null, "Descripción vacía");
 						txtrDescripcionAlbum.requestFocus();
 						return;
 					}
@@ -783,8 +785,7 @@ public class App {
 					JFileChooser chooser = new JFileChooser();
 					chooser.showOpenDialog(null);
 					File f = chooser.getSelectedFile();
-					String fileName = f.getAbsolutePath();
-					txtImagenAlbum.setText(fileName);
+					txtImagenAlbum.setText(f.getAbsolutePath());
 					try {
 						fotoAlbum = fileToBlob(f);
 					} catch (SQLException e) {
@@ -809,13 +810,36 @@ public class App {
 				int index = tableAlbum.getSelectedRow();
 				TableModel modelArtista = tableArtista.getModel();
 				TableModel modelAlbum = tableAlbum.getModel();
+				int cod = Integer.valueOf(modelAlbum.getValueAt(index, 0).toString());
 
-				txtCodigoAlbum.setText(modelAlbum.getValueAt(index, 0).toString());
+				txtCodigoAlbum.setText(String.valueOf(cod));
 				txtNombreAlbum.setText(modelAlbum.getValueAt(index, 1).toString());
 				txtFechaAlbum.setText(modelAlbum.getValueAt(index, 2).toString());
 				txtGenerosAlbum.setText(modelAlbum.getValueAt(index, 3).toString());
 				txtDiscograficaAlbum.setText(modelAlbum.getValueAt(index, 4).toString());
 				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
+				
+				album = albumDAO.selectAlbumById(cod);
+				
+				txtrDescripcionAlbum.setText(album.getDescripcion());
+				
+				InputStream in;
+				try {
+					in = album.getImagen().getBinaryStream();
+					BufferedImage img = ImageIO.read(in);
+					Image dimg = img.getScaledInstance(lblFotoAlbum.getWidth(), lblFotoAlbum.getHeight(),
+							Image.SCALE_SMOOTH);
+					ImageIcon icon = new ImageIcon(dimg);
+					lblFotoAlbum.setIcon(icon);
+					lblFotoAlbum.setText(null);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (NullPointerException e2) {
+					lblFotoAlbum.setIcon(null);
+					lblFotoAlbum.setText("No foto");
+				}
 
 			}
 		});
