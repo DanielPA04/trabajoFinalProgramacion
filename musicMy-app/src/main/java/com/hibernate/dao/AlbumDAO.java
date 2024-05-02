@@ -4,12 +4,13 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import com.hibernate.model.Artista;
+import org.hibernate.query.Query;
+
+import com.hibernate.model.Album;
 import com.hibernate.util.HibernateUtil;
 
-public class ArtistaDAO {
-
-	public void insertArtista(Artista a) {
+public class AlbumDAO {
+	public void insertAlbum(Album a) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
@@ -22,7 +23,7 @@ public class ArtistaDAO {
 		}
 	}
 
-	public void updateArtista(Artista a) {
+	public void updateAlbum(Album a) {
 		Transaction transaction = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
@@ -35,12 +36,12 @@ public class ArtistaDAO {
 		}
 	}
 
-	public void deleteArtista(int id) {
+	public void deleteAlbum(int id) {
 		Transaction transaction = null;
-		Artista a = null;
+		Album a = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
-			a = session.get(Artista.class, id);
+			a = session.get(Album.class, id);
 			session.remove(a);
 			transaction.commit();
 		} catch (Exception e) {
@@ -50,12 +51,12 @@ public class ArtistaDAO {
 		}
 	}
 
-	public Artista selectArtistaById(int cod) {
+	public Album selectAlbumById(int cod) {
 		Transaction transaction = null;
-		Artista a = null;
+		Album a = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
-			a = session.get(Artista.class, cod);
+			a = session.get(Album.class, cod);
 			transaction.commit();
 		} catch (Exception e) {
 			if (transaction != null) {
@@ -65,19 +66,37 @@ public class ArtistaDAO {
 		return a;
 	}
 
-	public List<Artista> selectAllArtistas() {
+	public List<Album> selectAllAlbums() {
 		Transaction transaction = null;
-		List<Artista> artistas = null;
+		List<Album> albums = null;
 		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
 			transaction = session.beginTransaction();
-			artistas = session.createQuery("FROM Artista", Artista.class).getResultList();
+			albums = session.createQuery("FROM Album", Album.class).getResultList();
 			transaction.commit();
 		} catch (Exception e) {
+			e.printStackTrace();
 			if (transaction != null) {
 				transaction.rollback();
 			}
 		}
-		return artistas;
+		return albums;
 	}
-
+	
+	public List<Album> selectAllAlbumsByArtista(int cod) {
+		Transaction transaction = null;
+		List<Album> albums = null;
+		try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+			transaction = session.beginTransaction();
+			Query<Album> query = session.createQuery("FROM Album WHERE artista = :cod", Album.class);
+			query.setParameter("cod", cod);
+			albums = query.getResultList();
+			transaction.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (transaction != null) {
+				transaction.rollback();
+			}
+		}
+		return albums;
+	}
 }
