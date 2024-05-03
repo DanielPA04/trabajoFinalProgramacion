@@ -17,28 +17,28 @@ public class Album {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "codAlbum")
-	int cod;
+	private int cod;
 
 	@Column(name = "nombre")
-	String nombre;
+	private String nombre;
 
 	@Column(name = "fecha")
-	LocalDate fecha;
+	private LocalDate fecha;
 
 	@Column(name = "generos")
-	String generos;
+	private String generos;
 
 	@Column(name = "descripcion")
-	String descripcion;
+	private String descripcion;
 
 	@Column(name = "discografica")
-	String discografica;
+	private String discografica;
 	
 	@Column(name = "imagen")
-	Blob imagen;
+	private Blob imagen;
 
 	@Column(name = "Artista")
-	int artista;
+	private int artista;
 
 	public Album() {
 		super();
