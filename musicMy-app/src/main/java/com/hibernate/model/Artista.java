@@ -22,7 +22,7 @@ public class Artista {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "codArtista")
-	private int cod;
+	private int codArt;
 
 	@Column(name = "nombre")
 	private String nombre;
@@ -36,8 +36,8 @@ public class Artista {
 	@ManyToMany 
 	@JoinTable(
 			name = "artista_discografica",
-			joinColumns = @JoinColumn(name = "cod"),
-            inverseJoinColumns = @JoinColumn(name = "cod")
+			joinColumns = @JoinColumn(name = "codArt"),
+            inverseJoinColumns = @JoinColumn(name = "codDis")
 			  )
 	private List<Discografica> discograficas = new ArrayList<Discografica>();
 	
@@ -52,12 +52,12 @@ public class Artista {
 		this.imagen = imagen;
 	}
 
-	public int getCod() {
-		return cod;
+	public int getCodArt() {
+		return codArt;
 	}
 
-	public void setCod(int cod) {
-		this.cod = cod;
+	public void setCodArt(int codArt) {
+		this.codArt = codArt;
 	}
 
 	public String getNombre() {
@@ -102,6 +102,8 @@ public class Artista {
 		this.discograficas.remove(d);
 		d.getArtistas().remove(this);
 	}
+
+
 	
 
 }

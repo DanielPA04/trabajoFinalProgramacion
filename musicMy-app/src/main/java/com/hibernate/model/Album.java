@@ -17,7 +17,7 @@ public class Album {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "codAlbum")
-	private int cod;
+	private int codAlb;
 
 	@Column(name = "nombre")
 	private String nombre;
@@ -55,12 +55,12 @@ public class Album {
 		this.artista = artista;
 	}
 
-	public int getCod() {
-		return cod;
+	public int getCodAlb() {
+		return codAlb;
 	}
 
-	public void setCod(int cod) {
-		this.cod = cod;
+	public void setCodAlb(int codAlb) {
+		this.codAlb = codAlb;
 	}
 
 	public String getNombre() {
