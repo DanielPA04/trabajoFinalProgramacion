@@ -7,6 +7,7 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,7 +37,7 @@ public class Discografica {
 	@Column(name = "imagen")
 	private Blob imagen;
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
 			name = "artista_discografica",
 			joinColumns = @JoinColumn(name = "codDis"),
@@ -110,7 +111,7 @@ public class Discografica {
 		a.getDiscograficas().add(this);
 	}
 	
-	public void quitarPersona(Artista a) {
+	public void quitarArtista(Artista a) {
 		this.artistas.remove(a);
 		a.getDiscograficas().remove(this);
 	}
