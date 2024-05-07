@@ -1,11 +1,13 @@
 package com.hibernate.model;
 
+import java.sql.Blob;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,7 +23,7 @@ public class Discografica {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "codDiscografica")
-	private int cod;
+	private int codDis;
 	
 	@Column(name = "nombre")
 	private String nombre;
@@ -32,11 +34,14 @@ public class Discografica {
 	@Column(name = "fundacion")
 	private LocalDate fundacion;
 	
-	@ManyToMany
+	@Column(name = "imagen")
+	private Blob imagen;
+	
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
 			name = "artista_discografica",
-			joinColumns = @JoinColumn(name = "cod"),
-            inverseJoinColumns = @JoinColumn(name = "cod")
+			joinColumns = @JoinColumn(name = "codDis"),
+            inverseJoinColumns = @JoinColumn(name = "codArt")
 			  )
 	private List<Artista> artistas = new ArrayList<Artista>();
 
@@ -44,19 +49,20 @@ public class Discografica {
 		super();
 	}
 
-	public Discografica(String nombre, String pais, LocalDate fundacion) {
+	public Discografica(String nombre, String pais, LocalDate fundacion, Blob imagen) {
 		super();
 		this.nombre = nombre;
 		this.pais = pais;
 		this.fundacion = fundacion;
+		this.imagen = imagen;
 	}
 
-	public int getCod() {
-		return cod;
+	public int getCodDis() {
+		return codDis;
 	}
 
-	public void setCod(int cod) {
-		this.cod = cod;
+	public void setCodDis(int codDis) {
+		this.codDis = codDis;
 	}
 
 	public String getNombre() {
@@ -91,12 +97,21 @@ public class Discografica {
 		this.artistas = artistas;
 	}
 	
+	
+	public Blob getImagen() {
+		return imagen;
+	}
+
+	public void setImagen(Blob imagen) {
+		this.imagen = imagen;
+	}
+
 	public void anyadirArtista(Artista a) {
 		this.artistas.add(a);
 		a.getDiscograficas().add(this);
 	}
 	
-	public void quitarPersona(Artista a) {
+	public void quitarArtista(Artista a) {
 		this.artistas.remove(a);
 		a.getDiscograficas().remove(this);
 	}

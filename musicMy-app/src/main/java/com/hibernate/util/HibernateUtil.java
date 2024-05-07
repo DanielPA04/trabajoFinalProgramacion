@@ -9,6 +9,7 @@ import org.hibernate.service.ServiceRegistry;
 
 import com.hibernate.model.Album;
 import com.hibernate.model.Artista;
+import com.hibernate.model.Discografica;
 
 public class HibernateUtil {
 	private static SessionFactory sessionFactory;
@@ -31,6 +32,7 @@ public class HibernateUtil {
 
 				configuration.addAnnotatedClass(Artista.class);
 				configuration.addAnnotatedClass(Album.class);
+				configuration.addAnnotatedClass(Discografica.class);
 
 
 				ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()

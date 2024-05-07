@@ -18,7 +18,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
 import javax.swing.ImageIcon;
@@ -27,28 +26,33 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-
 import com.hibernate.dao.AlbumDAO;
 import com.hibernate.dao.ArtistaDAO;
+import com.hibernate.dao.DiscograficaDAO;
 import com.hibernate.model.Album;
 import com.hibernate.model.Artista;
+import com.hibernate.model.Discografica;
+import javax.swing.JComboBox;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 public class App {
 
-	 JFrame frame;
+	JFrame frame;
 	// Artista
 	int codArtistaSelec;
 	DefaultTableModel modelArtista;
 	JTable tableArtista;
 	Artista artista;
 	List<Artista> artistas;
+	List<Discografica> discograficasArtista = new ArrayList<Discografica>();;
 	ArtistaDAO artistaDAO = new ArtistaDAO();
 	JScrollPane scrollPaneArtista;
 	Blob fotoArtista = null;
@@ -57,6 +61,8 @@ public class App {
 	private JTextField txtCodigoArtista;
 	private JTextField txtImagenArtista;
 	JLabel lblFotoArtista;
+	JComboBox comboBoxA;
+	JComboBox comboBoxQ;
 	// Album
 	DefaultTableModel modelAlbum;
 	JTable tableAlbum;
@@ -74,13 +80,38 @@ public class App {
 	private JTextField txtImagenAlbum;
 	private JTextArea txtrDescripcionAlbum;
 	private JLabel lblFotoAlbum;
+	// Discografica
+	int codDiscograficaSelec;
+	DefaultTableModel modelDiscografica;
+	JTable tableDiscografica;
+	Discografica discografica;
+	List<Discografica> discograficas;
+	DiscograficaDAO discograficaDAO = new DiscograficaDAO();
+	JScrollPane scrollPaneDiscografica;
+	Blob fotoDiscografica = null;
+	private JTextField txtCodigoDiscografica;
+	private JTextField txtNombreDiscografica;
+	private JTextField txtPaisDiscografica;
+	private JTextField txtFundacionDiscografica;
+	private JTextField txtImagenDiscografica;
+	private JLabel lblFotoDiscografica;
+	private JTextField txtDiscograficasArtista;
 
-	public void loadData() {
+	// Metodos para cargar datos
+	// Estan sobrecargados, unos es para cargar todos los datos de la tabla y otros
+	// para cargar solo los de los objetos que se le pase a la funcion
+	public void loadAllData() {
+		loadDataArtista();
+		modelAlbum.setRowCount(0);
+		loadDataDiscografica();
+	}
+
+	public void loadDataArtista() {
 		artistas = artistaDAO.selectAllArtistas();
 		modelArtista.setRowCount(0);
 		artistas.forEach(s -> {
 			Object[] row = new Object[3];
-			row[0] = s.getCod();
+			row[0] = s.getCodArt();
 			row[1] = s.getNombre();
 			String fecha;
 			try {
@@ -94,11 +125,30 @@ public class App {
 
 	}
 
-	public void loadAlbumes(List<Album> albums) {
+	public void loadDataArtista(List<Artista> artistas) {
+		modelArtista.setRowCount(0);
+		artistas.forEach(s -> {
+			Object[] row = new Object[3];
+			row[0] = s.getCodArt();
+			row[1] = s.getNombre();
+			String fecha;
+			try {
+				fecha = App.cambiarFormatoFechaH(s.getFechaNac());
+			} catch (NullPointerException e) {
+				fecha = null;
+			}
+			row[2] = fecha;
+			modelArtista.addRow(row);
+		});
+
+	}
+
+	public void loadAlbumes() {
+		albums = albumDAO.selectAllAlbums();
 		modelAlbum.setRowCount(0);
 		albums.forEach(a -> {
 			Object[] row = new Object[6];
-			row[0] = a.getCod();
+			row[0] = a.getCodAlb();
 			row[1] = a.getNombre();
 			String fecha;
 			try {
@@ -116,17 +166,91 @@ public class App {
 		});
 	}
 
+	public void loadAlbumes(List<Album> albums) {
+		modelAlbum.setRowCount(0);
+		albums.forEach(a -> {
+			Object[] row = new Object[6];
+			row[0] = a.getCodAlb();
+			row[1] = a.getNombre();
+			String fecha;
+			try {
+				fecha = App.cambiarFormatoFechaH(a.getFecha());
+			} catch (NullPointerException e) {
+				fecha = null;
+			}
+			row[2] = fecha;
+			row[3] = a.getGeneros();
+			row[4] = a.getDiscografica();
+			row[5] = a.getArtista();
+
+			modelAlbum.addRow(row);
+
+		});
+	}
+
+	public void loadDataDiscografica() {
+		comboBoxA.removeAllItems();
+		discograficas = discograficaDAO.selectAllDiscograficas();
+		modelDiscografica.setRowCount(0);
+		discograficas.forEach(s -> {
+			Object[] row = new Object[4];
+			row[0] = s.getCodDis();
+			row[1] = s.getNombre();
+			row[2] = s.getPais();
+			String fecha;
+			try {
+				fecha = App.cambiarFormatoFechaH(s.getFundacion());
+			} catch (NullPointerException e) {
+				fecha = null;
+			}
+			row[3] = fecha;
+			modelDiscografica.addRow(row);
+			comboBoxA.addItem(s.getCodDis());
+
+		});
+
+	}
+
+	public void loadDataDiscografica(List<Discografica> discograficas) {
+		modelDiscografica.setRowCount(0);
+		discograficas.forEach(s -> {
+			Object[] row = new Object[4];
+			row[0] = s.getCodDis();
+			row[1] = s.getNombre();
+			String fecha;
+			try {
+				fecha = App.cambiarFormatoFechaH(s.getFundacion());
+			} catch (NullPointerException e) {
+				fecha = null;
+			}
+			row[2] = fecha;
+			row[3] = s.getPais();
+
+			modelDiscografica.addRow(row);
+			comboBoxA.addItem(s.getCodDis());
+		});
+
+	}
+
+	// Metodos para eliminar datos itroducidos durante el tiemp ode ejecuccion de
+	// los txt, lbl, etc
 	public void clearAllData() {
 		// Artista
+		clearArtistaData();
+		// Album
+		clearAlbumData();
+		txtArtistaAlbum.setText(null);
+		// Discografica
+		clearDiscograficaData();
+	}
+
+	public void clearArtistaData() {
 		txtFechanacArtista.setText(null);
 		txtNombreArtista.setText(null);
 		txtCodigoArtista.setText(null);
 		txtImagenArtista.setText(null);
 		lblFotoArtista.setText(null);
 		lblFotoArtista.setIcon(null);
-		// Album
-		clearAlbumData();
-		txtArtistaAlbum.setText(null);
 	}
 
 	public void clearAlbumData() {
@@ -141,6 +265,17 @@ public class App {
 		lblFotoAlbum.setIcon(null);
 	}
 
+	public void clearDiscograficaData() {
+		txtCodigoDiscografica.setText(null);
+		txtNombreDiscografica.setText(null);
+		txtPaisDiscografica.setText(null);
+		txtFundacionDiscografica.setText(null);
+		txtImagenDiscografica.setText(null);
+		lblFotoDiscografica.setText(null);
+		lblFotoDiscografica.setIcon(null);
+	}
+
+	// Metodo para cambiar de formato europeo al formato de java
 	public static LocalDate cambiarFormatoFechaJavaNat(String fecha) {
 
 		DateTimeFormatter formatoOriginal = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -153,6 +288,7 @@ public class App {
 		return fechaFormateada;
 	}
 
+	// Metodo para cambiar del formato de java al formato europeo
 	public static String cambiarFormatoFechaH(LocalDate fecha) {
 		DateTimeFormatter pattern = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		String fechaFormateada = fecha.format(pattern);
@@ -160,6 +296,7 @@ public class App {
 
 	}
 
+	// Metodo para pasar un file a un Blob
 	public static Blob fileToBlob(File file) throws SQLException {
 
 		byte[] bArray = new byte[1000];
@@ -218,8 +355,33 @@ public class App {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Music My");
-		frame.setBounds(100, 100, 924, 607);
+		frame.setBounds(100, 100, 2000, 700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// Menu
+		JMenuBar menuBar = new JMenuBar();
+		frame.setJMenuBar(menuBar);
+
+		JMenu mnAcciones = new JMenu("Acciones");
+		menuBar.add(mnAcciones);
+
+		JMenuItem mntmLimpiar = new JMenuItem("Limpiar");
+		mnAcciones.add(mntmLimpiar);
+
+		JMenuItem mntmMostrarAlbumes = new JMenuItem("Mostrar albumes");
+		mnAcciones.add(mntmMostrarAlbumes);
+
+		mntmLimpiar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				loadAllData();
+				clearAllData();
+			}
+		});
+		mntmMostrarAlbumes.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				loadAlbumes();
+			}
+		});
+		// Artista
 
 		modelArtista = new DefaultTableModel() {
 			@Override
@@ -238,7 +400,7 @@ public class App {
 
 		artistas.forEach(s -> {
 			Object[] row = new Object[3];
-			row[0] = s.getCod();
+			row[0] = s.getCodArt();
 			row[1] = s.getNombre();
 			String fecha;
 			try {
@@ -308,6 +470,22 @@ public class App {
 		btnEliminarArtista.setBounds(97, 387, 117, 25);
 		frame.getContentPane().add(btnEliminarArtista);
 
+		JButton btnAnyadir = new JButton("Anyadir");
+		btnAnyadir.setBounds(124, 424, 117, 25);
+		frame.getContentPane().add(btnAnyadir);
+
+		JButton btnQuitar = new JButton("Quitar");
+		btnQuitar.setBounds(124, 461, 117, 25);
+		frame.getContentPane().add(btnQuitar);
+
+		comboBoxA = new JComboBox();
+		comboBoxA.setBounds(12, 424, 100, 24);
+		frame.getContentPane().add(comboBoxA);
+
+		comboBoxQ = new JComboBox();
+		comboBoxQ.setBounds(12, 461, 100, 24);
+		frame.getContentPane().add(comboBoxQ);
+
 		lblFotoArtista = new JLabel("");
 		lblFotoArtista.setBounds(320, 0, 139, 189);
 		frame.getContentPane().add(lblFotoArtista);
@@ -340,9 +518,14 @@ public class App {
 				}
 
 				artista = new Artista(nombre, fechaNac, fotoArtista);
+
+				discograficasArtista.forEach(d -> {
+					artista.anyadirDiscografica(d);
+
+				});
 				artistaDAO.insertArtista(artista);
 				artista = null;
-
+				discograficasArtista = null;
 				if (codS == null || codS.trim().isEmpty()) {
 					JOptionPane.showMessageDialog(null, "Usuario creado correctamente");
 				} else {
@@ -350,7 +533,7 @@ public class App {
 							"Usuario creado correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
 				}
 
-				loadData();
+				loadDataArtista();
 				clearAllData();
 
 			}
@@ -387,9 +570,16 @@ public class App {
 					artista.setNombre(nombre);
 					artista.setFechaNac(fechaNac);
 					artista.setImagen(fotoArtista);
+					discograficasArtista.forEach(d -> {
+						artista.quitarDiscografica(d);
+					});
+
+					discograficasArtista.forEach(d -> {
+						artista.anyadirDiscografica(d);
+					});
 					artistaDAO.updateArtista(artista);
 					artista = null;
-					loadData();
+					loadDataArtista();
 					clearAllData();
 
 				} else {
@@ -407,11 +597,12 @@ public class App {
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 						int cod = Integer.valueOf(txtCodigoArtista.getText());
 						try {
-						artistaDAO.deleteArtista(cod);
-						JOptionPane.showMessageDialog(null, "Artista eliminado/a");
-						loadData();
-						}catch (SQLException e) {
-							JOptionPane.showMessageDialog(null, "Artista no eliminado/a, tiene albumes asociados, eliminar los albumes primero");
+							artistaDAO.deleteArtista(cod);
+							JOptionPane.showMessageDialog(null, "Artista eliminado/a");
+							loadDataArtista();
+						} catch (SQLException e) {
+							JOptionPane.showMessageDialog(null,
+									"Artista no eliminado/a, tiene albumes asociados, eliminar los albumes primero");
 						}
 						clearAllData();
 					}
@@ -450,7 +641,34 @@ public class App {
 				}
 			}
 		});
+		// Anyadir
+		btnAnyadir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
 
+				int cod = Integer.valueOf(comboBoxA.getSelectedItem().toString());
+				txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + cod + " ");
+
+				discografica = discograficaDAO.selectDiscograficaById(cod);
+				discograficasArtista.add(discografica);
+				comboBoxA.removeItem(cod);
+				comboBoxQ.addItem(cod);
+
+			}
+		});
+		// Quitar
+		btnQuitar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int cod = Integer.valueOf(comboBoxQ.getSelectedItem().toString());
+				String a = txtDiscograficasArtista.getText().replace(String.valueOf(cod), " ");
+				txtDiscograficasArtista.setText(a);
+
+				discografica = discograficaDAO.selectDiscograficaById(cod);
+				discograficasArtista.remove(discografica);
+				comboBoxQ.removeItem(cod);
+				comboBoxA.addItem(cod);
+
+			}
+		});
 		// Tabla Artista
 		tableArtista.addMouseListener(new MouseAdapter() {
 			@Override
@@ -484,11 +702,22 @@ public class App {
 					lblFotoArtista.setText("No foto");
 				}
 
+				loadDataDiscografica();
+				discograficasArtista = artista.getDiscograficas();
+
+				txtDiscograficasArtista.setText(null);
+
+				discograficasArtista.forEach(d -> {
+					txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + d.getCodDis() + " ");
+					comboBoxA.removeItem(d.getCodDis());
+				});
+
 				albums = albumDAO.selectAllAlbumsByArtista(codArtistaSelec);
 				loadAlbumes(albums);
 				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
 
 			}
+
 		});
 
 		// Album
@@ -808,7 +1037,6 @@ public class App {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int index = tableAlbum.getSelectedRow();
-				TableModel modelArtista = tableArtista.getModel();
 				TableModel modelAlbum = tableAlbum.getModel();
 				int cod = Integer.valueOf(modelAlbum.getValueAt(index, 0).toString());
 
@@ -818,11 +1046,11 @@ public class App {
 				txtGenerosAlbum.setText(modelAlbum.getValueAt(index, 3).toString());
 				txtDiscograficaAlbum.setText(modelAlbum.getValueAt(index, 4).toString());
 				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
-				
+
 				album = albumDAO.selectAlbumById(cod);
-				
+
 				txtrDescripcionAlbum.setText(album.getDescripcion());
-				
+
 				InputStream in;
 				try {
 					in = album.getImagen().getBinaryStream();
@@ -843,7 +1071,300 @@ public class App {
 
 			}
 		});
+		// Discografica
+
+		modelDiscografica = new DefaultTableModel() {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
+
+		tableDiscografica = new JTable(modelDiscografica);
+		modelDiscografica.addColumn("Codigo");
+		modelDiscografica.addColumn("Nombre");
+		modelDiscografica.addColumn("Pais");
+		modelDiscografica.addColumn("Fecha de fundación");
+
+		discograficas = discograficaDAO.selectAllDiscograficas();
+
+		discograficas.forEach(s -> {
+			Object[] row = new Object[4];
+			row[0] = s.getCodDis();
+			row[1] = s.getNombre();
+			row[2] = s.getPais();
+			String fecha;
+			try {
+				fecha = App.cambiarFormatoFechaH(s.getFundacion());
+			} catch (NullPointerException e) {
+				fecha = null;
+			}
+			row[3] = fecha;
+			comboBoxA.addItem(s.getCodDis());
+
+			modelDiscografica.addRow(row);
+		});
+
+		frame.getContentPane().setLayout(null);
+		tableDiscografica.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		tableDiscografica.setBounds(0, 0, 50, 50);
+		scrollPaneDiscografica = new JScrollPane(tableDiscografica);
+		scrollPaneDiscografica.setBounds(1211, 0, 318, 199);
+		frame.getContentPane().add(scrollPaneDiscografica);
+
+		txtCodigoDiscografica = new JTextField();
+		txtCodigoDiscografica.setEditable(false);
+		txtCodigoDiscografica.setBounds(1415, 211, 114, 19);
+		frame.getContentPane().add(txtCodigoDiscografica);
+		txtCodigoDiscografica.setColumns(10);
+
+		txtNombreDiscografica = new JTextField();
+		txtNombreDiscografica.setBounds(1415, 242, 114, 19);
+		frame.getContentPane().add(txtNombreDiscografica);
+		txtNombreDiscografica.setColumns(10);
+
+		txtPaisDiscografica = new JTextField();
+		txtPaisDiscografica.setBounds(1415, 273, 114, 19);
+		frame.getContentPane().add(txtPaisDiscografica);
+		txtPaisDiscografica.setColumns(10);
+
+		txtFundacionDiscografica = new JTextField();
+		txtFundacionDiscografica.setBounds(1415, 304, 114, 19);
+		frame.getContentPane().add(txtFundacionDiscografica);
+		txtFundacionDiscografica.setColumns(10);
+
+		JLabel lblCodigoDiscografica = new JLabel("Codigo:");
+		lblCodigoDiscografica.setBounds(1267, 211, 130, 15);
+		frame.getContentPane().add(lblCodigoDiscografica);
+
+		JLabel lblNombreDiscografica = new JLabel("Nombre");
+		lblNombreDiscografica.setBounds(1267, 244, 130, 15);
+		frame.getContentPane().add(lblNombreDiscografica);
+
+		JLabel lblPaisDiscografica = new JLabel("Pais");
+		lblPaisDiscografica.setBounds(1267, 275, 130, 15);
+		frame.getContentPane().add(lblPaisDiscografica);
+
+		JLabel lblFundacionDiscografica = new JLabel("Fecha Fundacion:");
+		lblFundacionDiscografica.setBounds(1267, 306, 130, 15);
+		frame.getContentPane().add(lblFundacionDiscografica);
+
+		JButton btnElegirFotoDiscografica = new JButton("Elegir foto");
+		btnElegirFotoDiscografica.setBounds(1415, 335, 117, 25);
+		frame.getContentPane().add(btnElegirFotoDiscografica);
+
+		txtImagenDiscografica = new JTextField();
+		txtImagenDiscografica.setEditable(false);
+		txtImagenDiscografica.setBounds(1267, 338, 130, 19);
+		frame.getContentPane().add(txtImagenDiscografica);
+		txtImagenDiscografica.setColumns(10);
+
+		JButton btnCrearDiscografica = new JButton("Crear");
+		btnCrearDiscografica.setBounds(1347, 387, 117, 25);
+		frame.getContentPane().add(btnCrearDiscografica);
+
+		JButton btnEditarDiscografica = new JButton("Editar");
+		btnEditarDiscografica.setBounds(1347, 424, 117, 25);
+		frame.getContentPane().add(btnEditarDiscografica);
+
+		JButton btnEliminarDiscografica = new JButton("Eliminar");
+		btnEliminarDiscografica.setBounds(1347, 461, 117, 25);
+		frame.getContentPane().add(btnEliminarDiscografica);
+
+		lblFotoDiscografica = new JLabel("");
+		lblFotoDiscografica.setBounds(1068, 0, 139, 189);
+		frame.getContentPane().add(lblFotoDiscografica);
+
+		txtDiscograficasArtista = new JTextField();
+		txtDiscograficasArtista.setEditable(false);
+		txtDiscograficasArtista.setBounds(253, 427, 114, 19);
+		frame.getContentPane().add(txtDiscograficasArtista);
+		txtDiscograficasArtista.setColumns(10);
+
+		// Botones
+		// Crear
+		btnCrearDiscografica.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String nombre = txtNombreDiscografica.getText();
+				String fechaFunS = txtFundacionDiscografica.getText();
+				String pais = txtPaisDiscografica.getText();
+				String codS = txtCodigoDiscografica.getText();
+
+				if (nombre == null || nombre.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Nombre vacío");
+					txtNombreDiscografica.requestFocus();
+					return;
+				}
+
+				if (fechaFunS == null || fechaFunS.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Fecha de fundación vacía");
+					txtFundacionDiscografica.requestFocus();
+					return;
+				}
+
+				if (pais == null || pais.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Pais vacío");
+					txtPaisDiscografica.requestFocus();
+					return;
+				}
+
+				LocalDate fechaFun = null;
+				try {
+					fechaFun = App.cambiarFormatoFechaJavaNat(fechaFunS);
+				} catch (DateTimeParseException e) {
+					JOptionPane.showMessageDialog(null, "Formato de fecha incorrecto dd/MM/yyyy");
+					return;
+				}
+
+				discografica = new Discografica(nombre, pais, fechaFun, fotoDiscografica);
+				discograficaDAO.insertDiscografica(discografica);
+				discografica = null;
+
+				if (codS == null || codS.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Discografica creada correctamente");
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Discografica creada correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
+				}
+
+				loadDataDiscografica();
+				clearAlbumData();
+
+			}
+		});
+		// Editar
+		btnEditarDiscografica.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (!txtCodigoDiscografica.getText().isEmpty()) {
+					int cod = Integer.valueOf(txtCodigoDiscografica.getText());
+					discografica = discograficaDAO.selectDiscograficaById(cod);
+
+					String nombre = txtNombreDiscografica.getText();
+					String pais = txtPaisDiscografica.getText();
+					String fechaFunS = txtFundacionDiscografica.getText();
+
+					if (nombre == null || nombre.trim().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Nombre vacío");
+						txtNombreDiscografica.requestFocus();
+						return;
+					}
+
+					if (pais == null || pais.trim().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "País vacío");
+						txtPaisDiscografica.requestFocus();
+						return;
+					}
+
+					if (fechaFunS == null || fechaFunS.trim().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Fecha de fundacion vacía");
+						txtFundacionDiscografica.requestFocus();
+						return;
+					}
+
+					LocalDate fechaFun = null;
+					try {
+						fechaFun = App.cambiarFormatoFechaJavaNat(fechaFunS);
+					} catch (DateTimeParseException e) {
+						JOptionPane.showMessageDialog(null, "Formato de fecha incorrecto dd/MM/yyyy");
+						return;
+					}
+					discografica.setNombre(nombre);
+					discografica.setFundacion(fechaFun);
+					discografica.setImagen(fotoDiscografica);
+					discograficaDAO.updateDiscografica(discografica);
+					discografica = null;
+					loadDataDiscografica();
+					clearAlbumData();
+
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Ninguna discográfica seleccionada, realice un clic en la tabla");
+				}
+			}
+		});
+		// Eliminar
+		btnEliminarDiscografica.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				if (!txtCodigoDiscografica.getText().isEmpty()) {
+					if (JOptionPane.showConfirmDialog(null, "¿Seguro que quieres eliminarla?", "Eliminar",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+						int cod = Integer.valueOf(txtCodigoDiscografica.getText());
+						discograficaDAO.deleteDiscografica(cod);
+						JOptionPane.showMessageDialog(null, "Discografica eliminada");
+						loadDataDiscografica();
+						clearDiscograficaData();
+					}
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Ninguna discografica seleccionada, realice un clic en la tabla");
+				}
+
+			}
+		});
+		// Elegir foto
+		btnElegirFotoDiscografica.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+
+					JFileChooser chooser = new JFileChooser();
+					chooser.showOpenDialog(null);
+					File f = chooser.getSelectedFile();
+					txtImagenDiscografica.setText(f.getAbsolutePath());
+
+					try {
+						fotoDiscografica = fileToBlob(f);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+
+					BufferedImage img = ImageIO.read(f);
+					Image dimg = img.getScaledInstance(lblFotoDiscografica.getWidth(), lblFotoDiscografica.getHeight(),
+							Image.SCALE_SMOOTH);
+					ImageIcon icon = new ImageIcon(dimg);
+					lblFotoDiscografica.setIcon(icon);
+				} catch (NullPointerException e1) {
+					e1.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		// Tabla
+		tableDiscografica.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int index = tableDiscografica.getSelectedRow();
+				TableModel modelDiscografica = tableDiscografica.getModel();
+				codDiscograficaSelec = (int) modelDiscografica.getValueAt(index, 0);
+
+				txtCodigoDiscografica.setText(String.valueOf(codDiscograficaSelec));
+				txtNombreDiscografica.setText(modelDiscografica.getValueAt(index, 1).toString());
+				txtPaisDiscografica.setText(modelDiscografica.getValueAt(index, 2).toString());
+				txtFundacionDiscografica.setText(modelDiscografica.getValueAt(index, 3).toString());
+
+				discografica = discograficaDAO.selectDiscograficaById(codDiscograficaSelec);
+
+				InputStream in;
+				try {
+					in = discografica.getImagen().getBinaryStream();
+					BufferedImage img = ImageIO.read(in);
+					Image dimg = img.getScaledInstance(lblFotoDiscografica.getWidth(), lblFotoDiscografica.getHeight(),
+							Image.SCALE_SMOOTH);
+					ImageIcon icon = new ImageIcon(dimg);
+					lblFotoDiscografica.setIcon(icon);
+					lblFotoDiscografica.setText(null);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (NullPointerException e2) {
+					lblFotoDiscografica.setIcon(null);
+					lblFotoDiscografica.setText("No foto");
+				}
+
+			}
+		});
 
 	}
-
 }

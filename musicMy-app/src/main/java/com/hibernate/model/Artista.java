@@ -7,6 +7,7 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,7 +23,7 @@ public class Artista {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "codArtista")
-	private int cod;
+	private int codArt;
 
 	@Column(name = "nombre")
 	private String nombre;
@@ -33,11 +34,11 @@ public class Artista {
 	@Column(name = "imagen", columnDefinition = "mediumblob")
 	private Blob imagen;
 
-	@ManyToMany 
+	@ManyToMany (fetch = FetchType.EAGER)
 	@JoinTable(
 			name = "artista_discografica",
-			joinColumns = @JoinColumn(name = "cod"),
-            inverseJoinColumns = @JoinColumn(name = "cod")
+			joinColumns = @JoinColumn(name = "codArt"),
+            inverseJoinColumns = @JoinColumn(name = "codDis")
 			  )
 	private List<Discografica> discograficas = new ArrayList<Discografica>();
 	
@@ -52,12 +53,12 @@ public class Artista {
 		this.imagen = imagen;
 	}
 
-	public int getCod() {
-		return cod;
+	public int getCodArt() {
+		return codArt;
 	}
 
-	public void setCod(int cod) {
-		this.cod = cod;
+	public void setCodArt(int codArt) {
+		this.codArt = codArt;
 	}
 
 	public String getNombre() {
@@ -93,15 +94,17 @@ public class Artista {
 	}
 	
 	
-	public void anyadirPersona(Discografica d) {
+	public void anyadirDiscografica(Discografica d) {
 		this.discograficas.add(d);
 		d.getArtistas().add(this);
 	}
 	
-	public void quitarPersona(Discografica d) {
+	public void quitarDiscografica(Discografica d) {
 		this.discograficas.remove(d);
 		d.getArtistas().remove(this);
 	}
+
+
 	
 
 }
