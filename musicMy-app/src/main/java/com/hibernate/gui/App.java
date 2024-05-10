@@ -60,6 +60,7 @@ public class App {
 	private JTextField txtNombreArtista;
 	private JTextField txtCodigoArtista;
 	private JTextField txtImagenArtista;
+	private JTextArea txtDiscograficasArtista;
 	JLabel lblFotoArtista;
 	JComboBox comboBoxA;
 	JComboBox comboBoxQ;
@@ -79,6 +80,7 @@ public class App {
 	private JTextField txtArtistaAlbum;
 	private JTextField txtImagenAlbum;
 	private JTextArea txtrDescripcionAlbum;
+
 	private JLabel lblFotoAlbum;
 	// Discografica
 	int codDiscograficaSelec;
@@ -95,7 +97,13 @@ public class App {
 	private JTextField txtFundacionDiscografica;
 	private JTextField txtImagenDiscografica;
 	private JLabel lblFotoDiscografica;
-	private JTextField txtDiscograficasArtista;
+
+
+	public void nullFotos() {
+		fotoAlbum = null;
+		fotoArtista = null;
+		fotoDiscografica = null;
+	}
 
 	// Metodos para cargar datos
 	// Estan sobrecargados, unos es para cargar todos los datos de la tabla y otros
@@ -252,12 +260,11 @@ public class App {
 		txtImagenArtista.setText(null);
 		lblFotoArtista.setText(null);
 		lblFotoArtista.setIcon(null);
-		
+
 		txtDiscograficasArtista.setText(null);
 		comboBoxQ.removeAllItems();
 		comboBoxA.removeAllItems();
 
-		
 	}
 
 	public void clearAlbumData() {
@@ -373,7 +380,7 @@ public class App {
 
 		JMenuItem mntmLimpiar = new JMenuItem("Limpiar");
 		mnAcciones.add(mntmLimpiar);
-		
+
 		JMenuItem mntmMostrarAlbumes = new JMenuItem("Mostrar albumes");
 		mnAcciones.add(mntmMostrarAlbumes);
 
@@ -381,6 +388,7 @@ public class App {
 			public void actionPerformed(ActionEvent arg0) {
 				loadAllData();
 				clearAllData();
+				nullFotos();
 			}
 		});
 		mntmMostrarAlbumes.addActionListener(new ActionListener() {
@@ -496,7 +504,16 @@ public class App {
 		lblFotoArtista = new JLabel("");
 		lblFotoArtista.setBounds(320, 0, 139, 189);
 		frame.getContentPane().add(lblFotoArtista);
-		
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(253, 424, 174, 25);
+		frame.getContentPane().add(scrollPane);
+
+		txtDiscograficasArtista = new JTextArea();
+		scrollPane.setViewportView(txtDiscograficasArtista);
+		txtDiscograficasArtista.setEditable(false);
+		txtDiscograficasArtista.setColumns(10);
+
 		// Botones Artista
 		// Crear
 		btnCrearArtista.addActionListener(new ActionListener() {
@@ -526,23 +543,25 @@ public class App {
 				}
 
 				artista = new Artista(nombre, fechaNac, fotoArtista);
-
 				discograficasArtista.forEach(d -> {
 					artista.anyadirDiscografica(d);
 
 				});
 				artistaDAO.insertArtista(artista);
+
 				artista = null;
-				discograficasArtista = null;
+				discograficasArtista.clear();
+
 				if (codS == null || codS.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Usuario creado correctamente");
+					JOptionPane.showMessageDialog(null, "Artista creado correctamente");
 				} else {
 					JOptionPane.showMessageDialog(null,
-							"Usuario creado correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
+							"Artista creado correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
 				}
 
 				loadDataArtista();
 				clearAllData();
+				fotoArtista = null;
 				loadDataDiscografica();
 
 			}
@@ -579,20 +598,21 @@ public class App {
 					}
 					artista.setNombre(nombre);
 					artista.setFechaNac(fechaNac);
+					if (fotoArtista != null ) {
 					artista.setImagen(fotoArtista);
-					discograficasArtista.forEach(d -> {
-						artista.quitarDiscografica(d);
-					});
-
+					}
+					artista.getDiscograficas().clear();
 					discograficasArtista.forEach(d -> {
 						artista.anyadirDiscografica(d);
 					});
 					artistaDAO.updateArtista(artista);
+
 					artista = null;
+
 					loadDataArtista();
 					clearAllData();
+					fotoArtista = null;
 					loadDataDiscografica();
-
 
 				} else {
 					JOptionPane.showMessageDialog(null, "Ningun artista seleccionado, realice un clic en la tabla");
@@ -617,6 +637,7 @@ public class App {
 									"Artista no eliminado/a, tiene albumes asociados, eliminar los albumes primero");
 						}
 						clearAllData();
+						fotoArtista = null;
 						loadDataDiscografica();
 					}
 				} else {
@@ -634,6 +655,7 @@ public class App {
 					JFileChooser chooser = new JFileChooser();
 					chooser.showOpenDialog(null);
 					File f = chooser.getSelectedFile();
+					
 					txtImagenArtista.setText(f.getAbsolutePath());
 
 					try {
@@ -657,7 +679,7 @@ public class App {
 		// Anyadir
 		btnAnyadir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-
+				try {
 				int cod = Integer.valueOf(comboBoxA.getSelectedItem().toString());
 				txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + cod + " ");
 
@@ -665,20 +687,29 @@ public class App {
 				discograficasArtista.add(discografica);
 				comboBoxA.removeItem(cod);
 				comboBoxQ.addItem(cod);
+				}catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(null, "Ninguna discografica que anyadir");
+				}
 
 			}
 		});
 		// Quitar
 		btnQuitar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				try {
 				int cod = Integer.valueOf(comboBoxQ.getSelectedItem().toString());
 				String a = txtDiscograficasArtista.getText().replace(String.valueOf(cod), " ");
 				txtDiscograficasArtista.setText(a);
 
 				discografica = discograficaDAO.selectDiscograficaById(cod);
-				discograficasArtista.remove(discografica);
+
+				discograficasArtista.removeIf(d -> String.valueOf(d.getCodDis()).equals(String.valueOf(cod)));
+
 				comboBoxQ.removeItem(cod);
 				comboBoxA.addItem(cod);
+				}catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(null, "Ninguna discografica que quitar");
+				}
 
 			}
 		});
@@ -720,10 +751,10 @@ public class App {
 
 				txtDiscograficasArtista.setText(null);
 
+				comboBoxQ.removeAllItems();
 				discograficasArtista.forEach(d -> {
 					txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + d.getCodDis() + " ");
 					comboBoxA.removeItem(d.getCodDis());
-					comboBoxQ.removeAllItems();
 					comboBoxQ.addItem(d.getCodDis());
 				});
 
@@ -911,6 +942,7 @@ public class App {
 				txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
 
 				clearAlbumData();
+				fotoAlbum = null;
 
 				if (codS == null || codS.trim().isEmpty()) {
 					JOptionPane.showMessageDialog(null, "Album creado correctamente");
@@ -971,7 +1003,9 @@ public class App {
 					album.setGeneros(generos);
 					album.setDiscografica(discografica);
 					album.setDescripcion(descripcion);
+					if (fotoAlbum != null ) {
 					album.setImagen(fotoAlbum);
+					}
 					albumDAO.updateAlbum(album);
 					album = null;
 
@@ -980,6 +1014,7 @@ public class App {
 					txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
 
 					clearAlbumData();
+					fotoAlbum = null;
 
 				} else {
 					JOptionPane.showMessageDialog(null, "Ningun album seleccionado, realice un clic en la tabla");
@@ -1004,6 +1039,7 @@ public class App {
 						txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
 
 						clearAlbumData();
+						fotoAlbum = null;
 					}
 
 				} else {
@@ -1119,7 +1155,7 @@ public class App {
 
 			modelDiscografica.addRow(row);
 		});
-
+		
 		frame.getContentPane().setLayout(null);
 		tableDiscografica.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		tableDiscografica.setBounds(0, 0, 50, 50);
@@ -1189,12 +1225,10 @@ public class App {
 		lblFotoDiscografica = new JLabel("");
 		lblFotoDiscografica.setBounds(1068, 0, 139, 189);
 		frame.getContentPane().add(lblFotoDiscografica);
-
-		txtDiscograficasArtista = new JTextField();
-		txtDiscograficasArtista.setEditable(false);
-		txtDiscograficasArtista.setBounds(253, 427, 114, 19);
-		frame.getContentPane().add(txtDiscograficasArtista);
-		txtDiscograficasArtista.setColumns(10);
+		
+		JLabel lblDiscograficasArtista = new JLabel("Discograficas: ");
+		lblDiscograficasArtista.setBounds(253, 403, 117, 15);
+		frame.getContentPane().add(lblDiscograficasArtista);
 
 		// Botones
 		// Crear
@@ -1234,6 +1268,7 @@ public class App {
 				discografica = new Discografica(nombre, pais, fechaFun, fotoDiscografica);
 				discograficaDAO.insertDiscografica(discografica);
 				discografica = null;
+				fotoDiscografica = null;
 
 				if (codS == null || codS.trim().isEmpty()) {
 					JOptionPane.showMessageDialog(null, "Discografica creada correctamente");
@@ -1243,8 +1278,8 @@ public class App {
 				}
 
 				loadDataDiscografica();
-				clearAlbumData();
-
+				clearDiscograficaData();
+				fotoArtista = null;
 			}
 		});
 		// Editar
@@ -1285,11 +1320,14 @@ public class App {
 					}
 					discografica.setNombre(nombre);
 					discografica.setFundacion(fechaFun);
+					if (fotoDiscografica != null ) {
 					discografica.setImagen(fotoDiscografica);
+					}
 					discograficaDAO.updateDiscografica(discografica);
 					discografica = null;
 					loadDataDiscografica();
-					clearAlbumData();
+					clearDiscograficaData();
+					fotoDiscografica = null;
 
 				} else {
 					JOptionPane.showMessageDialog(null,
@@ -1309,6 +1347,7 @@ public class App {
 						JOptionPane.showMessageDialog(null, "Discografica eliminada");
 						loadDataDiscografica();
 						clearDiscograficaData();
+						fotoDiscografica = null;
 					}
 				} else {
 					JOptionPane.showMessageDialog(null,
