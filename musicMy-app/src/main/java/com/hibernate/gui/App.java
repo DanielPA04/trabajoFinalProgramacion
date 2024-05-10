@@ -212,6 +212,7 @@ public class App {
 	}
 
 	public void loadDataDiscografica(List<Discografica> discograficas) {
+		comboBoxA.removeAllItems();
 		modelDiscografica.setRowCount(0);
 		discograficas.forEach(s -> {
 			Object[] row = new Object[4];
@@ -251,6 +252,12 @@ public class App {
 		txtImagenArtista.setText(null);
 		lblFotoArtista.setText(null);
 		lblFotoArtista.setIcon(null);
+		
+		txtDiscograficasArtista.setText(null);
+		comboBoxQ.removeAllItems();
+		comboBoxA.removeAllItems();
+
+		
 	}
 
 	public void clearAlbumData() {
@@ -366,7 +373,7 @@ public class App {
 
 		JMenuItem mntmLimpiar = new JMenuItem("Limpiar");
 		mnAcciones.add(mntmLimpiar);
-
+		
 		JMenuItem mntmMostrarAlbumes = new JMenuItem("Mostrar albumes");
 		mnAcciones.add(mntmMostrarAlbumes);
 
@@ -489,6 +496,7 @@ public class App {
 		lblFotoArtista = new JLabel("");
 		lblFotoArtista.setBounds(320, 0, 139, 189);
 		frame.getContentPane().add(lblFotoArtista);
+		
 		// Botones Artista
 		// Crear
 		btnCrearArtista.addActionListener(new ActionListener() {
@@ -535,11 +543,13 @@ public class App {
 
 				loadDataArtista();
 				clearAllData();
+				loadDataDiscografica();
 
 			}
 		});
 		// Editar
 		btnEditarArtista.addActionListener(new ActionListener() {
+
 			public void actionPerformed(ActionEvent arg0) {
 				if (!txtCodigoArtista.getText().isEmpty()) {
 					int cod = Integer.valueOf(txtCodigoArtista.getText());
@@ -581,6 +591,8 @@ public class App {
 					artista = null;
 					loadDataArtista();
 					clearAllData();
+					loadDataDiscografica();
+
 
 				} else {
 					JOptionPane.showMessageDialog(null, "Ningun artista seleccionado, realice un clic en la tabla");
@@ -605,6 +617,7 @@ public class App {
 									"Artista no eliminado/a, tiene albumes asociados, eliminar los albumes primero");
 						}
 						clearAllData();
+						loadDataDiscografica();
 					}
 				} else {
 					JOptionPane.showMessageDialog(null, "Ningun artista seleccionado, realice un clic en la tabla");
@@ -710,6 +723,8 @@ public class App {
 				discograficasArtista.forEach(d -> {
 					txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + d.getCodDis() + " ");
 					comboBoxA.removeItem(d.getCodDis());
+					comboBoxQ.removeAllItems();
+					comboBoxQ.addItem(d.getCodDis());
 				});
 
 				albums = albumDAO.selectAllAlbumsByArtista(codArtistaSelec);
