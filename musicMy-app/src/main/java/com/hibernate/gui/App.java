@@ -1,6 +1,6 @@
 package com.hibernate.gui;
 
-import java.awt.EventQueue;
+import java.awt.EventQueue; 
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,6 +42,8 @@ import javax.swing.JComboBox;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
 
 public class App {
 
@@ -446,10 +448,11 @@ public class App {
 		lblFechaNacimientoArtista.setBounds(12, 255, 139, 15);
 		frame.getContentPane().add(lblFechaNacimientoArtista);
 
-		txtFechanacArtista = new JTextField();
-		txtFechanacArtista.setBounds(169, 253, 114, 19);
-		frame.getContentPane().add(txtFechanacArtista);
-		txtFechanacArtista.setColumns(10);
+		JDateChooser dateChooserArtista = new JDateChooser();
+		JTextFieldDateEditor editor = (JTextFieldDateEditor) dateChooserArtista.getDateEditor();
+		editor.setEditable(false);
+		dateChooserArtista.setBounds(169, 253, 114, 19);
+		frame.getContentPane().add(dateChooserArtista);
 
 		txtNombreArtista = new JTextField();
 		txtNombreArtista.setBounds(169, 226, 114, 19);
@@ -518,7 +521,8 @@ public class App {
 		btnCrearArtista.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String nombre = txtNombreArtista.getText();
-				String fechaNacS = txtFechanacArtista.getText();
+				String fechaNacS = dateChooserArtista.getDate().toString();
+				System.out.println(fechaNacS);
 				String codS = txtCodigoArtista.getText();
 
 				if (nombre == null || nombre.trim().isEmpty()) {
@@ -527,11 +531,11 @@ public class App {
 					return;
 				}
 
-				if (fechaNacS == null || fechaNacS.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Fecha de nacimiento vacía");
-					txtFechanacArtista.requestFocus();
-					return;
-				}
+//				if (fechaNacS == null || fechaNacS.trim().isEmpty()) {
+//					JOptionPane.showMessageDialog(null, "Fecha de nacimiento vacía");
+//					txtFechanacArtista.requestFocus();
+//					return;
+//				}
 
 				LocalDate fechaNac = null;
 				try {
@@ -788,7 +792,7 @@ public class App {
 		scrollPaneAlbum = new JScrollPane(tableAlbum);
 		scrollPaneAlbum.setBounds(616, 0, 308, 189);
 		frame.getContentPane().add(scrollPaneAlbum);
-
+		
 		txtCodigoAlbum = new JTextField();
 		txtCodigoAlbum.setEditable(false);
 		txtCodigoAlbum.setBounds(798, 199, 114, 19);
@@ -1228,6 +1232,8 @@ public class App {
 		JLabel lblDiscograficasArtista = new JLabel("Discograficas: ");
 		lblDiscograficasArtista.setBounds(253, 403, 117, 15);
 		frame.getContentPane().add(lblDiscograficasArtista);
+		
+
 
 		// Botones
 		// Crear
