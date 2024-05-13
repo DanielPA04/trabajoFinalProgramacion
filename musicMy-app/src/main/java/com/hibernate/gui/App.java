@@ -98,7 +98,6 @@ public class App {
 	private JTextField txtImagenDiscografica;
 	private JLabel lblFotoDiscografica;
 
-
 	public void nullFotos() {
 		fotoAlbum = null;
 		fotoArtista = null;
@@ -598,8 +597,8 @@ public class App {
 					}
 					artista.setNombre(nombre);
 					artista.setFechaNac(fechaNac);
-					if (fotoArtista != null ) {
-					artista.setImagen(fotoArtista);
+					if (fotoArtista != null) {
+						artista.setImagen(fotoArtista);
 					}
 					artista.getDiscograficas().clear();
 					discograficasArtista.forEach(d -> {
@@ -655,7 +654,7 @@ public class App {
 					JFileChooser chooser = new JFileChooser();
 					chooser.showOpenDialog(null);
 					File f = chooser.getSelectedFile();
-					
+
 					txtImagenArtista.setText(f.getAbsolutePath());
 
 					try {
@@ -680,14 +679,14 @@ public class App {
 		btnAnyadir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-				int cod = Integer.valueOf(comboBoxA.getSelectedItem().toString());
-				txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + cod + " ");
+					int cod = Integer.valueOf(comboBoxA.getSelectedItem().toString());
+					txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + " " + cod + " ");
 
-				discografica = discograficaDAO.selectDiscograficaById(cod);
-				discograficasArtista.add(discografica);
-				comboBoxA.removeItem(cod);
-				comboBoxQ.addItem(cod);
-				}catch (NullPointerException e) {
+					discografica = discograficaDAO.selectDiscograficaById(cod);
+					discograficasArtista.add(discografica);
+					comboBoxA.removeItem(cod);
+					comboBoxQ.addItem(cod);
+				} catch (NullPointerException e) {
 					JOptionPane.showMessageDialog(null, "Ninguna discografica que anyadir");
 				}
 
@@ -697,17 +696,17 @@ public class App {
 		btnQuitar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-				int cod = Integer.valueOf(comboBoxQ.getSelectedItem().toString());
-				String a = txtDiscograficasArtista.getText().replace(String.valueOf(cod), " ");
-				txtDiscograficasArtista.setText(a);
+					int cod = Integer.valueOf(comboBoxQ.getSelectedItem().toString());
+					txtDiscograficasArtista
+							.setText(txtDiscograficasArtista.getText().replace((" "+String.valueOf(cod)+" "), ""));
 
-				discografica = discograficaDAO.selectDiscograficaById(cod);
+					discografica = discograficaDAO.selectDiscograficaById(cod);
 
-				discograficasArtista.removeIf(d -> String.valueOf(d.getCodDis()).equals(String.valueOf(cod)));
+					discograficasArtista.removeIf(d -> String.valueOf(d.getCodDis()).equals(String.valueOf(cod)));
 
-				comboBoxQ.removeItem(cod);
-				comboBoxA.addItem(cod);
-				}catch (NullPointerException e) {
+					comboBoxQ.removeItem(cod);
+					comboBoxA.addItem(cod);
+				} catch (NullPointerException e) {
 					JOptionPane.showMessageDialog(null, "Ninguna discografica que quitar");
 				}
 
@@ -1003,8 +1002,8 @@ public class App {
 					album.setGeneros(generos);
 					album.setDiscografica(discografica);
 					album.setDescripcion(descripcion);
-					if (fotoAlbum != null ) {
-					album.setImagen(fotoAlbum);
+					if (fotoAlbum != null) {
+						album.setImagen(fotoAlbum);
 					}
 					albumDAO.updateAlbum(album);
 					album = null;
@@ -1155,7 +1154,7 @@ public class App {
 
 			modelDiscografica.addRow(row);
 		});
-		
+
 		frame.getContentPane().setLayout(null);
 		tableDiscografica.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		tableDiscografica.setBounds(0, 0, 50, 50);
@@ -1225,7 +1224,7 @@ public class App {
 		lblFotoDiscografica = new JLabel("");
 		lblFotoDiscografica.setBounds(1068, 0, 139, 189);
 		frame.getContentPane().add(lblFotoDiscografica);
-		
+
 		JLabel lblDiscograficasArtista = new JLabel("Discograficas: ");
 		lblDiscograficasArtista.setBounds(253, 403, 117, 15);
 		frame.getContentPane().add(lblDiscograficasArtista);
@@ -1320,8 +1319,8 @@ public class App {
 					}
 					discografica.setNombre(nombre);
 					discografica.setFundacion(fechaFun);
-					if (fotoDiscografica != null ) {
-					discografica.setImagen(fotoDiscografica);
+					if (fotoDiscografica != null) {
+						discografica.setImagen(fotoDiscografica);
 					}
 					discograficaDAO.updateDiscografica(discografica);
 					discografica = null;
