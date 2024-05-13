@@ -1,11 +1,8 @@
 package com.hibernate.dao;
 
-import java.sql.SQLException;
 import java.util.List;
-
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-
 import com.hibernate.model.Discografica;
 import com.hibernate.util.HibernateUtil;
 
