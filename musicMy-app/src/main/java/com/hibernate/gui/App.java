@@ -1,5 +1,6 @@
 package com.hibernate.gui;
 
+
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -13,18 +14,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
 import javax.swing.ImageIcon;
@@ -41,6 +36,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+import com.github.lgooddatepicker.components.DatePicker;
 import com.hibernate.dao.AlbumDAO;
 import com.hibernate.dao.ArtistaDAO;
 import com.hibernate.dao.DiscograficaDAO;
@@ -51,8 +48,6 @@ import javax.swing.JComboBox;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import com.toedter.calendar.JDateChooser;
-import com.toedter.calendar.JTextFieldDateEditor;
 
 public class App {
 
@@ -72,9 +67,9 @@ public class App {
 	private JTextField txtImagenArtista;
 	private JTextArea txtDiscograficasArtista;
 	private JLabel lblFotoArtista;
-	private JDateChooser dateChooserArtista;
 	private JComboBox comboBoxA;
 	private JComboBox comboBoxQ;
+	DatePicker datePickerArtista;
 	// Album
 	private DefaultTableModel modelAlbum;
 	private JTable tableAlbum;
@@ -83,7 +78,6 @@ public class App {
 	private AlbumDAO albumDAO = new AlbumDAO();
 	private JScrollPane scrollPaneAlbum;
 	private Blob fotoAlbum = null;
-	private JDateChooser dateChooserAlbum;
 	private JTextField txtCodigoAlbum;
 	private JTextField txtNombreAlbum;
 	private JTextField txtGenerosAlbum;
@@ -92,6 +86,8 @@ public class App {
 	private JTextField txtImagenAlbum;
 	private JTextArea txtrDescripcionAlbum;
 	private JLabel lblFotoAlbum;
+	DatePicker datePickerAlbum;
+
 	// Discografica
 	int codDiscograficaSelec;
 	private DefaultTableModel modelDiscografica;
@@ -101,12 +97,13 @@ public class App {
 	private DiscograficaDAO discograficaDAO = new DiscograficaDAO();
 	private JScrollPane scrollPaneDiscografica;
 	private Blob fotoDiscografica = null;
-	private JDateChooser dateChooserDiscografica;
 	private JTextField txtCodigoDiscografica;
 	private JTextField txtNombreDiscografica;
 	private JTextField txtPaisDiscografica;
 	private JTextField txtImagenDiscografica;
 	private JLabel lblFotoDiscografica;
+	private JTextField textField;
+	DatePicker datePickerDiscografica;
 
 	public void nullFotos() {
 		fotoAlbum = null;
@@ -263,7 +260,7 @@ public class App {
 	}
 
 	public void clearArtistaData() {
-		dateChooserArtista.setDate(null);
+		datePickerArtista.setDate(null);
 		txtNombreArtista.setText(null);
 		txtCodigoArtista.setText(null);
 		txtImagenArtista.setText(null);
@@ -279,7 +276,7 @@ public class App {
 	public void clearAlbumData() {
 		txtCodigoAlbum.setText(null);
 		txtNombreAlbum.setText(null);
-		dateChooserAlbum.setDate(null);
+		datePickerAlbum.setDate(null);
 		txtGenerosAlbum.setText(null);
 		txtDiscograficaAlbum.setText(null);
 		txtImagenAlbum.setText(null);
@@ -292,7 +289,7 @@ public class App {
 		txtCodigoDiscografica.setText(null);
 		txtNombreDiscografica.setText(null);
 		txtPaisDiscografica.setText(null);
-		dateChooserDiscografica.setDate(null);
+		datePickerDiscografica.setDate(null);
 		txtImagenDiscografica.setText(null);
 		lblFotoDiscografica.setText(null);
 		lblFotoDiscografica.setIcon(null);
@@ -328,11 +325,6 @@ public class App {
 		DateTimeFormatter pattern = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		String fechaFormateada = fecha.format(pattern);
 		return fechaFormateada;
-	}
-
-	// Metodo para cambiar de Date a LocalDate
-	public LocalDate fromDateToLocalDate(Date date) {
-		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 
 	// Metodo para pasar un file a un Blob
@@ -468,16 +460,12 @@ public class App {
 			tableArtista.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
 
+//		TableRowSorter<TableModel> rowSorterArtista = new TableRowSorter<TableModel>(modelArtista);
+//		tableArtista.setRowSorter(rowSorterArtista);
+
 		JLabel lblCodigoArtista = new JLabel("Codigo: ");
 		lblCodigoArtista.setBounds(12, 201, 139, 15);
 		frame.getContentPane().add(lblCodigoArtista);
-
-		dateChooserAlbum = new JDateChooser();
-		JTextFieldDateEditor editorAlbum = (JTextFieldDateEditor) dateChooserAlbum.getDateEditor();
-		editorAlbum.setEditable(false);
-		dateChooserAlbum.setBounds(798, 255, 114, 19);
-		dateChooserAlbum.setDateFormatString("dd/MM/yyyy");
-		frame.getContentPane().add(dateChooserAlbum);
 
 		JLabel lblNombreArtista = new JLabel("Nombre: ");
 		lblNombreArtista.setBounds(12, 228, 139, 15);
@@ -487,12 +475,12 @@ public class App {
 		lblFechaNacimientoArtista.setBounds(12, 255, 139, 15);
 		frame.getContentPane().add(lblFechaNacimientoArtista);
 
-		dateChooserArtista = new JDateChooser();
-		JTextFieldDateEditor editorArtista = (JTextFieldDateEditor) dateChooserArtista.getDateEditor();
-		editorArtista.setEditable(false);
-		dateChooserArtista.setBounds(169, 253, 114, 19);
-		dateChooserArtista.setDateFormatString("dd/MM/yyyy");
-		frame.getContentPane().add(dateChooserArtista);
+		DatePickerSettings datePickerSettingsArtista = new DatePickerSettings();
+		datePickerSettingsArtista.setFormatForDatesCommonEra("dd/MM/yyyy");
+		datePickerSettingsArtista.setAllowKeyboardEditing(false);
+		datePickerArtista = new DatePicker(datePickerSettingsArtista);
+		datePickerArtista.setBounds(169, 253, 114, 19);
+		frame.getContentPane().add(datePickerArtista);
 
 		txtNombreArtista = new JTextField();
 		txtNombreArtista.setBounds(169, 226, 114, 19);
@@ -561,7 +549,6 @@ public class App {
 		btnCrearArtista.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String nombre = txtNombreArtista.getText();
-
 				String codS = txtCodigoArtista.getText();
 
 				if (nombre == null || nombre.trim().isEmpty()) {
@@ -571,13 +558,13 @@ public class App {
 				}
 
 				try {
-					String fechaNacS = dateChooserArtista.getDate().toString();
+					String fechaNacS = datePickerArtista.getDate().toString();
 				} catch (NullPointerException e) {
 					JOptionPane.showMessageDialog(null, "Fecha de nacimiento vacia");
 					return;
 				}
 
-				LocalDate fechaNac = fromDateToLocalDate(dateChooserArtista.getDate());
+				LocalDate fechaNac = datePickerArtista.getDate();
 
 				artista = new Artista(nombre, fechaNac, fotoArtista);
 				discograficasArtista.forEach(d -> {
@@ -614,7 +601,7 @@ public class App {
 					String nombre = txtNombreArtista.getText();
 
 					try {
-						String fechaNacS = dateChooserArtista.getDate().toString();
+						String fechaNacS = datePickerArtista.getDate().toString();
 					} catch (NullPointerException e) {
 						JOptionPane.showMessageDialog(null, "Fecha de nacimiento vacia");
 						return;
@@ -626,7 +613,7 @@ public class App {
 						return;
 					}
 
-					LocalDate fechaNac = fromDateToLocalDate(dateChooserArtista.getDate());
+					LocalDate fechaNac = datePickerArtista.getDate();
 
 					artista.setNombre(nombre);
 					artista.setFechaNac(fechaNac);
@@ -755,12 +742,8 @@ public class App {
 
 				txtCodigoArtista.setText(String.valueOf(codArtistaSelec));
 				txtNombreArtista.setText(modelArtista.getValueAt(index, 1).toString());
-				try {
-					dateChooserArtista.setDate(
-							new SimpleDateFormat("dd/MM/yyyy").parse(modelArtista.getValueAt(index, 2).toString()));
-				} catch (ParseException e1) {
-					e1.printStackTrace();
-				}
+
+				datePickerArtista.setDate(cambiarFormatoFechaJavaNat(modelArtista.getValueAt(index, 2).toString()));
 
 				artista = artistaDAO.selectArtistaById(codArtistaSelec);
 
@@ -829,6 +812,16 @@ public class App {
 		for (int i = 0; i < tableAlbum.getColumnModel().getColumnCount(); i++) {
 			tableAlbum.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
+		
+//		TableRowSorter<TableModel> rowSorterAlbum = new TableRowSorter<TableModel>(modelAlbum);
+//		tableAlbum.setRowSorter(rowSorterAlbum);
+
+		DatePickerSettings datePickerSettingsAlbum = new DatePickerSettings();
+		datePickerSettingsAlbum.setFormatForDatesCommonEra("dd/MM/yyyy");
+		datePickerSettingsAlbum.setAllowKeyboardEditing(false);
+		datePickerAlbum = new DatePicker(datePickerSettingsAlbum);
+		datePickerAlbum.setBounds(798, 255, 114, 19);
+		frame.getContentPane().add(datePickerAlbum);
 
 		txtCodigoAlbum = new JTextField();
 		txtCodigoAlbum.setEditable(false);
@@ -918,14 +911,12 @@ public class App {
 		lblDescripcionAlbum.setBounds(476, 368, 100, 15);
 		frame.getContentPane().add(lblDescripcionAlbum);
 
-		dateChooserDiscografica = new JDateChooser();
-		JTextFieldDateEditor editorDiscografica = (JTextFieldDateEditor) dateChooserDiscografica.getDateEditor();
-		editorDiscografica.setEditable(false);
-
-		dateChooserDiscografica.setBounds(1415, 303, 114, 19);
-
-		dateChooserDiscografica.setDateFormatString("dd/MM/yyyy");
-		frame.getContentPane().add(dateChooserDiscografica);
+		DatePickerSettings datePickerSettingsDiscografica = new DatePickerSettings();
+		datePickerSettingsDiscografica.setFormatForDatesCommonEra("dd/MM/yyyy");
+		datePickerSettingsDiscografica.setAllowKeyboardEditing(false);
+		datePickerDiscografica = new DatePicker(datePickerSettingsDiscografica);
+		datePickerDiscografica.setBounds(1415, 303, 114, 19);
+		frame.getContentPane().add(datePickerDiscografica);
 
 		// Crear
 		btnCrearAlbum.addActionListener(new ActionListener() {
@@ -950,7 +941,7 @@ public class App {
 					return;
 				}
 				try {
-					String fechaS = dateChooserAlbum.getDate().toString();
+					String fechaS = datePickerAlbum.getDate().toString();
 				} catch (NullPointerException e) {
 					JOptionPane.showMessageDialog(null, "Fecha vacia");
 					return;
@@ -972,7 +963,7 @@ public class App {
 				}
 				String codS = txtCodigoAlbum.getText();
 				int artista = Integer.valueOf(artistaS);
-				LocalDate fecha = fromDateToLocalDate(dateChooserAlbum.getDate());
+				LocalDate fecha = datePickerAlbum.getDate();
 
 				album = new Album(nombre, fecha, generos, descripcion, discografica, fotoAlbum, artista);
 				albumDAO.insertAlbum(album);
@@ -1018,7 +1009,7 @@ public class App {
 						return;
 					}
 					try {
-						String fechaS = dateChooserAlbum.getDate().toString();
+						String fechaS = datePickerAlbum.getDate().toString();
 					} catch (NullPointerException e) {
 						JOptionPane.showMessageDialog(null, "Fecha vacia");
 						return;
@@ -1038,7 +1029,7 @@ public class App {
 						txtrDescripcionAlbum.requestFocus();
 						return;
 					}
-					LocalDate fecha = fromDateToLocalDate(dateChooserAlbum.getDate());
+					LocalDate fecha = datePickerAlbum.getDate();
 
 					album.setNombre(nombre);
 					album.setFecha(fecha);
@@ -1136,13 +1127,7 @@ public class App {
 
 				txtCodigoAlbum.setText(String.valueOf(cod));
 				txtNombreAlbum.setText(modelAlbum.getValueAt(index, 1).toString());
-
-				try {
-					dateChooserAlbum.setDate(
-							new SimpleDateFormat("dd/MM/yyyy").parse(modelAlbum.getValueAt(index, 2).toString()));
-				} catch (ParseException e1) {
-					e1.printStackTrace();
-				}
+				datePickerAlbum.setDate(cambiarFormatoFechaJavaNat(modelAlbum.getValueAt(index, 2).toString()));
 				txtGenerosAlbum.setText(modelAlbum.getValueAt(index, 3).toString());
 				txtDiscograficaAlbum.setText(modelAlbum.getValueAt(index, 4).toString());
 				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
@@ -1215,7 +1200,10 @@ public class App {
 		for (int i = 0; i < tableDiscografica.getColumnModel().getColumnCount(); i++) {
 			tableDiscografica.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
-
+		
+//		TableRowSorter<TableModel> rowSorterDiscografica = new TableRowSorter<TableModel>(modelDiscografica);
+//		tableDiscografica.setRowSorter(rowSorterDiscografica);
+		
 		txtCodigoDiscografica = new JTextField();
 		txtCodigoDiscografica.setEditable(false);
 		txtCodigoDiscografica.setBounds(1415, 211, 114, 19);
@@ -1295,7 +1283,7 @@ public class App {
 				}
 
 				try {
-					String fechaFunS = dateChooserDiscografica.getDate().toString();
+					String fechaFunS = datePickerDiscografica.getDate().toString();
 				} catch (NullPointerException e) {
 					JOptionPane.showMessageDialog(null, "Fecha de fundacion vacia");
 					return;
@@ -1307,7 +1295,7 @@ public class App {
 					return;
 				}
 
-				LocalDate fechaFun = fromDateToLocalDate(dateChooserAlbum.getDate());
+				LocalDate fechaFun = datePickerDiscografica.getDate();
 
 				discografica = new Discografica(nombre, pais, fechaFun, fotoDiscografica);
 				discograficaDAO.insertDiscografica(discografica);
@@ -1349,13 +1337,13 @@ public class App {
 					}
 
 					try {
-						String fechaFunS = dateChooserDiscografica.getDate().toString();
+						String fechaFunS = datePickerDiscografica.getDate().toString();
 					} catch (NullPointerException e) {
 						JOptionPane.showMessageDialog(null, "Fecha de fundacion vacia");
 						return;
 					}
 
-					LocalDate fechaFun = fromDateToLocalDate(dateChooserAlbum.getDate());
+					LocalDate fechaFun = datePickerDiscografica.getDate();
 
 					discografica.setNombre(nombre);
 					discografica.setFundacion(fechaFun);
@@ -1434,12 +1422,8 @@ public class App {
 				txtCodigoDiscografica.setText(String.valueOf(codDiscograficaSelec));
 				txtNombreDiscografica.setText(modelDiscografica.getValueAt(index, 1).toString());
 				txtPaisDiscografica.setText(modelDiscografica.getValueAt(index, 2).toString());
-				try {
-					dateChooserDiscografica.setDate(new SimpleDateFormat("dd/MM/yyyy")
-							.parse(modelDiscografica.getValueAt(index, 3).toString()));
-				} catch (ParseException e1) {
-					e1.printStackTrace();
-				}
+				datePickerDiscografica
+						.setDate(cambiarFormatoFechaJavaNat(modelDiscografica.getValueAt(index, 3).toString()));
 				discografica = discograficaDAO.selectDiscograficaById(codDiscograficaSelec);
 
 				InputStream in;
