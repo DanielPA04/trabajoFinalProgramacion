@@ -24,7 +24,7 @@ public class HibernateUtil {
 				settings.put(Environment.URL, "jdbc:mysql://127.0.0.1:3307/musicMy?useSSL=false");
 				settings.put(Environment.USER, "alumno");
 				settings.put(Environment.PASS, "alumno");
-				settings.put(Environment.SHOW_SQL, "true");
+				settings.put(Environment.SHOW_SQL, "false");
 				settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 				settings.put(Environment.HBM2DDL_AUTO, "update");
 

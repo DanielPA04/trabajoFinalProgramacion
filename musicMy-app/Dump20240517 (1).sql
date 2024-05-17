@@ -30,13 +30,13 @@ CREATE TABLE `album` (
   `fecha` date DEFAULT NULL,
   `generos` varchar(100) DEFAULT NULL,
   `descripcion` varchar(500) DEFAULT NULL,
-  `discografica` varchar(255) DEFAULT NULL,
+  `discografica` int DEFAULT NULL,
   `imagen` mediumblob,
   `Artista` int DEFAULT NULL,
   PRIMARY KEY (`codAlbum`),
   KEY `fk_album_artista_idx` (`Artista`),
   CONSTRAINT `fk_album_artista` FOREIGN KEY (`Artista`) REFERENCES `artista` (`codArtista`)
-) ENGINE=InnoDB AUTO_INCREMENT=753 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=803 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -45,7 +45,7 @@ CREATE TABLE `album` (
 
 LOCK TABLES `album` WRITE;
 /*!40000 ALTER TABLE `album` DISABLE KEYS */;
-INSERT INTO `album` VALUES (752,'Good Kid M A A D City','2012-10-22','Hip hop Rap','El álbum fue grabado, en su mayoría, en varios estudios en California con productores como Doctor Dre, Just Blaze, Pharrell Williams, Hit Boy, Scoop DeVille, Jack Splash, T Minus, entre otros. Anunciado como \"cortometraje por Kendrick Lamar\" en la portada, el concepto del álbum sigue la historia de las experiencias adolescentes de Kendrick en las calles infestadas de drogas y pandillas en su nativa Compton, California.','304',NULL,152);
+INSERT INTO `album` VALUES (752,'Good Kid M A A D City','2012-10-22','Hip hop Rap','El álbum fue grabado, en su mayoría, en varios estudios en California con productores como Doctor Dre, Just Blaze, Pharrell Williams, Hit Boy, Scoop DeVille, Jack Splash, T Minus, entre otros. Anunciado como \"cortometraje por Kendrick Lamar\" en la portada, el concepto del álbum sigue la historia de las experiencias adolescentes de Kendrick en las calles infestadas de drogas y pandillas en su nativa Compton, California.',304,NULL,152);
 /*!40000 ALTER TABLE `album` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -67,7 +67,7 @@ CREATE TABLE `album_SEQ` (
 
 LOCK TABLES `album_SEQ` WRITE;
 /*!40000 ALTER TABLE `album_SEQ` DISABLE KEYS */;
-INSERT INTO `album_SEQ` VALUES (851);
+INSERT INTO `album_SEQ` VALUES (901);
 /*!40000 ALTER TABLE `album_SEQ` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -204,4 +204,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-17 17:23:52
+-- Dump completed on 2024-05-17 19:48:40

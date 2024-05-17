@@ -4,7 +4,6 @@ import java.sql.Blob;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,47 +15,47 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "artista")
 /**
  * Clase Artista
  */
+@Entity
+@Table(name = "artista")
 public class Artista {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "codArtista")
+	
 	/**
 	 * Codigo autoincrementable del artista
 	 */
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "codArtista")
 	private int codArt;
-
-	@Column(name = "nombre")
+	
 	/**
 	 * Nombre del artista
 	 */
+	@Column(name = "nombre")
 	private String nombre;
 
-	@Column(name = "fechaNac")
 	/**
 	 * Fecha de nacimiento del artista
 	 */
+	@Column(name = "fechaNac")
 	private LocalDate fechaNac;
 
-	@Column(name = "imagen", columnDefinition = "mediumblob")
 	/**
 	 * Imagen del artista
 	 */
+	@Column(name = "imagen", columnDefinition = "mediumblob")
 	private Blob imagen;
 
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "artista_discografica", joinColumns = @JoinColumn(name = "codArt"), inverseJoinColumns = @JoinColumn(name = "codDis"))
 	/**
 	 * Lista de discograficas a las que pertenece/ha pertenecido un artista
 	 */
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "artista_discografica", joinColumns = @JoinColumn(name = "codArt"), inverseJoinColumns = @JoinColumn(name = "codDis"))
 	private List<Discografica> discograficas = new ArrayList<Discografica>();
 
-	/*
+	/**
 	 * Constructor por defecto
 	 */
 	public Artista() {

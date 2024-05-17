@@ -983,6 +983,8 @@ public class App {
 
 					discograficasArtista.removeIf(d -> String.valueOf(d.getCodDis()).equals(String.valueOf(cod)));
 
+
+
 					comboBoxQ.removeItem(cod);
 					comboBoxA.addItem(cod);
 				} catch (NullPointerException e) {
@@ -1015,7 +1017,7 @@ public class App {
 					return;
 				}
 				
-				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+				if (!comprobarER("[A-Za-z ]{1,45}", nombre)) {
 					JOptionPane.showMessageDialog(null,
 							"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
 					txtNombreAlbum.requestFocus();
@@ -1033,7 +1035,7 @@ public class App {
 					txtGenerosAlbum.requestFocus();
 					return;
 				}
-				if (!comprobarER("[a-zA-ZÀ-ÖØ-öø-ÿ, ]{1,100}", generos)) {
+				if (!comprobarER("[a-zA-Z, ]{1,100}", generos)) {
 					JOptionPane.showMessageDialog(null,
 							"Generos incorrectos, solo letras, espacios, comas y maximo 100 caracteres");
 					txtGenerosAlbum.requestFocus();
@@ -1045,7 +1047,7 @@ public class App {
 					txtrDescripcionAlbum.requestFocus();
 					return;
 				}
-				if (!comprobarER("[a-zA-ZÀ-ÖØ-öø-ÿ\\-!\"#$%&'()*+,./:;?@ ]{1,500}", descripcion)) {
+				if (!comprobarER("[a-zA-Z\\-!\"#$%&'()*+,./:;?@ ]{1,500}", descripcion)) {
 					JOptionPane.showMessageDialog(null,
 							"Descripcion incorrecta, solo letras, espacios, puntos, enters, comas y maximo 500 caracteres");
 					txtrDescripcionAlbum.requestFocus();
@@ -1098,7 +1100,7 @@ public class App {
 						txtNombreAlbum.requestFocus();
 						return;
 					}
-					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+					if (!comprobarER("[A-Za-z ]{1,45}", nombre)) {
 						JOptionPane.showMessageDialog(null,
 								"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
 						txtNombreAlbum.requestFocus();
@@ -1115,7 +1117,7 @@ public class App {
 						txtGenerosAlbum.requestFocus();
 						return;
 					}
-					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,100}", generos)) {
+					if (!comprobarER("[A-Za-z ]{1,100}", generos)) {
 						JOptionPane.showMessageDialog(null,
 								"Generos incorrectos, solo letras, espacios y maximo 100 caracteres");
 						txtGenerosAlbum.requestFocus();
@@ -1230,7 +1232,7 @@ public class App {
 					return;
 				}
 				
-				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+				if (!comprobarER("[A-Za-z ]{1,45}", nombre)) {
 					JOptionPane.showMessageDialog(null,
 							"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
 					txtNombreDiscografica.requestFocus();
@@ -1244,7 +1246,7 @@ public class App {
 					txtPaisDiscografica.requestFocus();
 					return;
 				}
-				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", pais)) {
+				if (!comprobarER("[A-Za-z ]{1,45}", pais)) {
 					JOptionPane.showMessageDialog(null,
 							"Pais incorrecto, solo letras, espacios y maximo 45 caracteres");
 					txtNombreDiscografica.requestFocus();
