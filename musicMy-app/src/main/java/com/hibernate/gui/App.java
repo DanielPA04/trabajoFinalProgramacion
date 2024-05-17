@@ -1,6 +1,5 @@
 package com.hibernate.gui;
 
-
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -81,12 +80,12 @@ public class App {
 	private JTextField txtCodigoAlbum;
 	private JTextField txtNombreAlbum;
 	private JTextField txtGenerosAlbum;
-	private JTextField txtDiscograficaAlbum;
 	private JTextField txtArtistaAlbum;
 	private JTextField txtImagenAlbum;
 	private JTextArea txtrDescripcionAlbum;
 	private JLabel lblFotoAlbum;
 	DatePicker datePickerAlbum;
+	private JComboBox comboBoxDiscograficaAlbum;
 
 	// Discografica
 	int codDiscograficaSelec;
@@ -204,6 +203,7 @@ public class App {
 
 	public void loadDataDiscografica() {
 		comboBoxA.removeAllItems();
+		comboBoxDiscograficaAlbum.removeAllItems();
 		discograficas = discograficaDAO.selectAllDiscograficas();
 		modelDiscografica.setRowCount(0);
 		discograficas.forEach(s -> {
@@ -220,6 +220,7 @@ public class App {
 			row[3] = fecha;
 			modelDiscografica.addRow(row);
 			comboBoxA.addItem(s.getCodDis());
+			comboBoxDiscograficaAlbum.addItem(s.getCodDis());
 
 		});
 
@@ -278,7 +279,7 @@ public class App {
 		txtNombreAlbum.setText(null);
 		datePickerAlbum.setDate(null);
 		txtGenerosAlbum.setText(null);
-		txtDiscograficaAlbum.setText(null);
+//		txtDiscograficaAlbum.setText(null);
 		txtImagenAlbum.setText(null);
 		txtrDescripcionAlbum.setText(null);
 		lblFotoAlbum.setText(null);
@@ -404,8 +405,8 @@ public class App {
 
 		mntmLimpiar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				loadAllData();
 				clearAllData();
+				loadAllData();
 				nullFotos();
 			}
 		});
@@ -544,248 +545,11 @@ public class App {
 		txtDiscograficasArtista.setEditable(false);
 		txtDiscograficasArtista.setColumns(10);
 
-		// Botones Artista
-		// Crear
-		btnCrearArtista.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String nombre = txtNombreArtista.getText();
-				String codS = txtCodigoArtista.getText();
-
-				if (nombre == null || nombre.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Nombre vacio");
-					txtNombreArtista.requestFocus();
-					return;
-				}
-
-				try {
-					String fechaNacS = datePickerArtista.getDate().toString();
-				} catch (NullPointerException e) {
-					JOptionPane.showMessageDialog(null, "Fecha de nacimiento vacia");
-					return;
-				}
-
-				LocalDate fechaNac = datePickerArtista.getDate();
-
-				artista = new Artista(nombre, fechaNac, fotoArtista);
-				discograficasArtista.forEach(d -> {
-					artista.anyadirDiscografica(d);
-
-				});
-				artistaDAO.insertArtista(artista);
-
-				artista = null;
-				discograficasArtista.clear();
-
-				if (codS == null || codS.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Artista creado correctamente");
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"Artista creado correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
-				}
-
-				loadDataArtista();
-				clearAllData();
-				fotoArtista = null;
-				loadDataDiscografica();
-
-			}
-		});
-		// Editar
-		btnEditarArtista.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent arg0) {
-				if (!txtCodigoArtista.getText().isEmpty()) {
-					int cod = Integer.valueOf(txtCodigoArtista.getText());
-					artista = artistaDAO.selectArtistaById(cod);
-
-					String nombre = txtNombreArtista.getText();
-
-					try {
-						String fechaNacS = datePickerArtista.getDate().toString();
-					} catch (NullPointerException e) {
-						JOptionPane.showMessageDialog(null, "Fecha de nacimiento vacia");
-						return;
-					}
-
-					if (nombre == null || nombre.trim().isEmpty()) {
-						JOptionPane.showMessageDialog(null, "Nombre vacio");
-						txtNombreArtista.requestFocus();
-						return;
-					}
-
-					LocalDate fechaNac = datePickerArtista.getDate();
-
-					artista.setNombre(nombre);
-					artista.setFechaNac(fechaNac);
-					if (fotoArtista != null) {
-						artista.setImagen(fotoArtista);
-					}
-					artista.getDiscograficas().clear();
-					discograficasArtista.forEach(d -> {
-						artista.anyadirDiscografica(d);
-					});
-					artistaDAO.updateArtista(artista);
-
-					artista = null;
-
-					loadDataArtista();
-					clearAllData();
-					fotoArtista = null;
-					loadDataDiscografica();
-
-				} else {
-					JOptionPane.showMessageDialog(null, "Ningun artista seleccionado, realice un clic en la tabla");
-				}
-			}
-
-		});
-		// Eliminar
-		btnEliminarArtista.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-				if (!txtCodigoArtista.getText().isEmpty()) {
-					if (JOptionPane.showConfirmDialog(null, "¿Seguro que quieres eliminarla?", "Eliminar",
-							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-						int cod = Integer.valueOf(txtCodigoArtista.getText());
-						try {
-							artistaDAO.deleteArtista(cod);
-							JOptionPane.showMessageDialog(null, "Artista eliminado/a");
-							loadDataArtista();
-						} catch (SQLException e) {
-							JOptionPane.showMessageDialog(null, e.getMessage());
-						}
-						clearAllData();
-						fotoArtista = null;
-						loadDataDiscografica();
-					}
-				} else {
-					JOptionPane.showMessageDialog(null, "Ningun artista seleccionado, realice un clic en la tabla");
-				}
-
-			}
-
-		});
-		// Elegir foto
-		btnElegirFotoArtista.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-
-					JFileChooser chooser = new JFileChooser();
-					chooser.showOpenDialog(null);
-					File f = chooser.getSelectedFile();
-
-					txtImagenArtista.setText(f.getAbsolutePath());
-
-					try {
-						fotoArtista = fileToBlob(f);
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-
-					BufferedImage img = ImageIO.read(f);
-					Image dimg = img.getScaledInstance(lblFotoArtista.getWidth(), lblFotoArtista.getHeight(),
-							Image.SCALE_SMOOTH);
-					ImageIcon icon = new ImageIcon(dimg);
-					lblFotoArtista.setIcon(icon);
-				} catch (NullPointerException e1) {
-					e1.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		// Anyadir
-		btnAnyadir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					int cod = Integer.valueOf(comboBoxA.getSelectedItem().toString());
-					txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + " " + cod + " ");
-
-					discografica = discograficaDAO.selectDiscograficaById(cod);
-					discograficasArtista.add(discografica);
-					comboBoxA.removeItem(cod);
-					comboBoxQ.addItem(cod);
-				} catch (NullPointerException e) {
-					JOptionPane.showMessageDialog(null, "Ninguna discografica que anyadir");
-				}
-
-			}
-		});
-		// Quitar
-		btnQuitar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					int cod = Integer.valueOf(comboBoxQ.getSelectedItem().toString());
-					txtDiscograficasArtista
-							.setText(txtDiscograficasArtista.getText().replace((" " + String.valueOf(cod) + " "), ""));
-
-					discografica = discograficaDAO.selectDiscograficaById(cod);
-
-					discograficasArtista.removeIf(d -> String.valueOf(d.getCodDis()).equals(String.valueOf(cod)));
-
-					comboBoxQ.removeItem(cod);
-					comboBoxA.addItem(cod);
-				} catch (NullPointerException e) {
-					JOptionPane.showMessageDialog(null, "Ninguna discografica que quitar");
-				}
-
-			}
-		});
-		// Tabla Artista
-		tableArtista.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				clearAlbumData();
-				int index = tableArtista.getSelectedRow();
-				TableModel modelArtista = tableArtista.getModel();
-				codArtistaSelec = (int) modelArtista.getValueAt(index, 0);
-
-				txtCodigoArtista.setText(String.valueOf(codArtistaSelec));
-				txtNombreArtista.setText(modelArtista.getValueAt(index, 1).toString());
-
-				datePickerArtista.setDate(cambiarFormatoFechaJavaNat(modelArtista.getValueAt(index, 2).toString()));
-
-				artista = artistaDAO.selectArtistaById(codArtistaSelec);
-
-				InputStream in;
-				try {
-					in = artista.getImagen().getBinaryStream();
-					BufferedImage img = ImageIO.read(in);
-					Image dimg = img.getScaledInstance(lblFotoArtista.getWidth(), lblFotoArtista.getHeight(),
-							Image.SCALE_SMOOTH);
-					ImageIcon icon = new ImageIcon(dimg);
-					lblFotoArtista.setIcon(icon);
-					lblFotoArtista.setText(null);
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (NullPointerException e2) {
-					lblFotoArtista.setIcon(null);
-					lblFotoArtista.setText("No foto");
-				}
-
-				loadDataDiscografica();
-				discograficasArtista = artista.getDiscograficas();
-
-				txtDiscograficasArtista.setText(null);
-
-				comboBoxQ.removeAllItems();
-				discograficasArtista.forEach(d -> {
-					txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + " " + d.getCodDis() + " ");
-					comboBoxA.removeItem(d.getCodDis());
-					comboBoxQ.addItem(d.getCodDis());
-				});
-
-				albums = albumDAO.selectAllAlbumsByArtista(codArtistaSelec);
-				loadAlbumes(albums);
-				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
-
-			}
-
-		});
-
 		// Album
+		comboBoxDiscograficaAlbum = new JComboBox();
+		comboBoxDiscograficaAlbum.setBounds(798, 314, 30, 22);
+		frame.getContentPane().add(comboBoxDiscograficaAlbum);
+
 		modelAlbum = new DefaultTableModel() {
 			@Override
 			public boolean isCellEditable(int row, int column) {
@@ -812,7 +576,7 @@ public class App {
 		for (int i = 0; i < tableAlbum.getColumnModel().getColumnCount(); i++) {
 			tableAlbum.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
-		
+
 //		TableRowSorter<TableModel> rowSorterAlbum = new TableRowSorter<TableModel>(modelAlbum);
 //		tableAlbum.setRowSorter(rowSorterAlbum);
 
@@ -842,11 +606,6 @@ public class App {
 		txtGenerosAlbum.setBounds(798, 282, 114, 19);
 		frame.getContentPane().add(txtGenerosAlbum);
 		txtGenerosAlbum.setColumns(10);
-
-		txtDiscograficaAlbum = new JTextField();
-		txtDiscograficaAlbum.setBounds(798, 316, 114, 19);
-		frame.getContentPane().add(txtDiscograficaAlbum);
-		txtDiscograficaAlbum.setColumns(10);
 
 		txtArtistaAlbum = new JTextField();
 		txtArtistaAlbum.setEditable(false);
@@ -918,244 +677,6 @@ public class App {
 		datePickerDiscografica.setBounds(1415, 303, 114, 19);
 		frame.getContentPane().add(datePickerDiscografica);
 
-		// Crear
-		btnCrearAlbum.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-				String artistaS = txtArtistaAlbum.getText();
-				String nombre = txtNombreAlbum.getText();
-				String generos = txtGenerosAlbum.getText();
-				String discografica = txtDiscograficaAlbum.getText();
-				String descripcion = txtrDescripcionAlbum.getText();
-
-				if (artistaS == null || artistaS.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null,
-							"Artista no seleccionado, realice un clic en la tabla de artistas");
-					txtArtistaAlbum.requestFocus();
-					return;
-				}
-
-				if (nombre == null || nombre.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Nombre vacio");
-					txtNombreAlbum.requestFocus();
-					return;
-				}
-				try {
-					String fechaS = datePickerAlbum.getDate().toString();
-				} catch (NullPointerException e) {
-					JOptionPane.showMessageDialog(null, "Fecha vacia");
-					return;
-				}
-				if (generos == null || generos.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Generos vacios");
-					txtGenerosAlbum.requestFocus();
-					return;
-				}
-				if (discografica == null || discografica.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Discografica vacia");
-					txtDiscograficaAlbum.requestFocus();
-					return;
-				}
-				if (descripcion == null || descripcion.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Descripcion vacia");
-					txtrDescripcionAlbum.requestFocus();
-					return;
-				}
-				String codS = txtCodigoAlbum.getText();
-				int artista = Integer.valueOf(artistaS);
-				LocalDate fecha = datePickerAlbum.getDate();
-
-				album = new Album(nombre, fecha, generos, descripcion, discografica, fotoAlbum, artista);
-				albumDAO.insertAlbum(album);
-				album = null;
-
-				albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(txtCodigoArtista.getText()));
-				loadAlbumes(albums);
-				txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
-
-				clearAlbumData();
-				fotoAlbum = null;
-
-				if (codS == null || codS.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, "Album creado correctamente");
-				} else {
-					JOptionPane.showMessageDialog(null,
-							"Album creado correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
-				}
-			}
-
-		});
-		// Editar
-		btnEditarAlbum.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-				if (txtArtistaAlbum.getText() == null || txtArtistaAlbum.getText().trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null,
-							"Artista no seleccionado, realice un clic en la tabla de artistas");
-					txtArtistaAlbum.requestFocus();
-					return;
-				}
-				if (!txtCodigoAlbum.getText().isEmpty()) {
-					String nombre = txtNombreAlbum.getText();
-					String generos = txtGenerosAlbum.getText();
-					String discografica = txtDiscograficaAlbum.getText();
-					String descripcion = txtrDescripcionAlbum.getText();
-					int cod = Integer.valueOf(txtCodigoAlbum.getText());
-					album = albumDAO.selectAlbumById(cod);
-
-					if (nombre == null || nombre.trim().isEmpty()) {
-						JOptionPane.showMessageDialog(null, "Nombre vacio");
-						txtNombreAlbum.requestFocus();
-						return;
-					}
-					try {
-						String fechaS = datePickerAlbum.getDate().toString();
-					} catch (NullPointerException e) {
-						JOptionPane.showMessageDialog(null, "Fecha vacia");
-						return;
-					}
-					if (generos == null || generos.trim().isEmpty()) {
-						JOptionPane.showMessageDialog(null, "Generos vacios");
-						txtGenerosAlbum.requestFocus();
-						return;
-					}
-					if (discografica == null || discografica.trim().isEmpty()) {
-						JOptionPane.showMessageDialog(null, "Discografica vacia");
-						txtDiscograficaAlbum.requestFocus();
-						return;
-					}
-					if (descripcion == null || descripcion.trim().isEmpty()) {
-						JOptionPane.showMessageDialog(null, "Descripción vacia");
-						txtrDescripcionAlbum.requestFocus();
-						return;
-					}
-					LocalDate fecha = datePickerAlbum.getDate();
-
-					album.setNombre(nombre);
-					album.setFecha(fecha);
-					album.setGeneros(generos);
-					album.setDiscografica(discografica);
-					album.setDescripcion(descripcion);
-					if (fotoAlbum != null) {
-						album.setImagen(fotoAlbum);
-					}
-					albumDAO.updateAlbum(album);
-					album = null;
-
-					albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(txtCodigoArtista.getText()));
-					loadAlbumes(albums);
-					txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
-
-					clearAlbumData();
-					fotoAlbum = null;
-
-				} else {
-					JOptionPane.showMessageDialog(null, "Ningun album seleccionado, realice un clic en la tabla");
-				}
-
-			}
-		});
-		// Eliminar
-		btnEliminarAlbum.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent arg0) {
-
-				if (!txtCodigoAlbum.getText().isEmpty()) {
-
-					if (JOptionPane.showConfirmDialog(null, "¿Seguro que quieres eliminarlo?", "Eliminar",
-							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-						int cod = Integer.valueOf(txtCodigoAlbum.getText());
-						albumDAO.deleteAlbum(cod);
-						JOptionPane.showMessageDialog(null, "Album eliminado/a");
-
-						albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(txtCodigoArtista.getText()));
-						loadAlbumes(albums);
-						txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
-
-						clearAlbumData();
-						fotoAlbum = null;
-					}
-
-				} else {
-					JOptionPane.showMessageDialog(null, "Ninguna album seleccionado, realice un clic en la tabla");
-				}
-
-			}
-		});
-		// Elegir foto
-		btnElegirFotoAlbum.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String artistaS = txtArtistaAlbum.getText();
-
-				if (artistaS == null || artistaS.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null,
-							"Album no seleccionado, realice un clic en la tabla de artistas");
-					txtArtistaAlbum.requestFocus();
-					return;
-				}
-
-				try {
-
-					JFileChooser chooser = new JFileChooser();
-					chooser.showOpenDialog(null);
-					File f = chooser.getSelectedFile();
-					txtImagenAlbum.setText(f.getAbsolutePath());
-					try {
-						fotoAlbum = fileToBlob(f);
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-					BufferedImage img = ImageIO.read(f);
-					Image dimg = img.getScaledInstance(lblFotoAlbum.getWidth(), lblFotoAlbum.getHeight(),
-							Image.SCALE_SMOOTH);
-					ImageIcon icon = new ImageIcon(dimg);
-					lblFotoAlbum.setIcon(icon);
-				} catch (NullPointerException e1) {
-					e1.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		// Tabla
-		tableAlbum.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int index = tableAlbum.getSelectedRow();
-				TableModel modelAlbum = tableAlbum.getModel();
-				int cod = Integer.valueOf(modelAlbum.getValueAt(index, 0).toString());
-
-				txtCodigoAlbum.setText(String.valueOf(cod));
-				txtNombreAlbum.setText(modelAlbum.getValueAt(index, 1).toString());
-				datePickerAlbum.setDate(cambiarFormatoFechaJavaNat(modelAlbum.getValueAt(index, 2).toString()));
-				txtGenerosAlbum.setText(modelAlbum.getValueAt(index, 3).toString());
-				txtDiscograficaAlbum.setText(modelAlbum.getValueAt(index, 4).toString());
-				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
-
-				album = albumDAO.selectAlbumById(cod);
-
-				txtrDescripcionAlbum.setText(album.getDescripcion());
-
-				InputStream in;
-				try {
-					in = album.getImagen().getBinaryStream();
-					BufferedImage img = ImageIO.read(in);
-					Image dimg = img.getScaledInstance(lblFotoAlbum.getWidth(), lblFotoAlbum.getHeight(),
-							Image.SCALE_SMOOTH);
-					ImageIcon icon = new ImageIcon(dimg);
-					lblFotoAlbum.setIcon(icon);
-					lblFotoAlbum.setText(null);
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (NullPointerException e2) {
-					lblFotoAlbum.setIcon(null);
-					lblFotoAlbum.setText("No foto");
-				}
-
-			}
-		});
 		// Discografica
 
 		modelDiscografica = new DefaultTableModel() {
@@ -1186,7 +707,7 @@ public class App {
 			}
 			row[3] = fecha;
 			comboBoxA.addItem(s.getCodDis());
-
+			comboBoxDiscograficaAlbum.addItem(s.getCodDis());
 			modelDiscografica.addRow(row);
 		});
 
@@ -1200,10 +721,10 @@ public class App {
 		for (int i = 0; i < tableDiscografica.getColumnModel().getColumnCount(); i++) {
 			tableDiscografica.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
-		
+
 //		TableRowSorter<TableModel> rowSorterDiscografica = new TableRowSorter<TableModel>(modelDiscografica);
 //		tableDiscografica.setRowSorter(rowSorterDiscografica);
-		
+
 		txtCodigoDiscografica = new JTextField();
 		txtCodigoDiscografica.setEditable(false);
 		txtCodigoDiscografica.setBounds(1415, 211, 114, 19);
@@ -1268,8 +789,434 @@ public class App {
 
 		;
 
-		// Botones
-		// Crear
+		// Botones Artista
+		// Crear Artista
+		btnCrearArtista.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String nombre = txtNombreArtista.getText();
+				String codS = txtCodigoArtista.getText();
+
+				if (nombre == null || nombre.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Nombre vacio");
+					txtNombreArtista.requestFocus();
+					return;
+				}
+
+				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+					JOptionPane.showMessageDialog(null,
+							"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
+					txtNombreArtista.requestFocus();
+					return;
+				}
+
+				try {
+					String fechaNacS = datePickerArtista.getDate().toString();
+				} catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(null, "Fecha de nacimiento vacia");
+					return;
+				}
+
+				LocalDate fechaNac = datePickerArtista.getDate();
+
+				artista = new Artista(nombre, fechaNac, fotoArtista);
+				discograficasArtista.forEach(d -> {
+					artista.anyadirDiscografica(d);
+
+				});
+				artistaDAO.insertArtista(artista);
+
+				artista = null;
+				discograficasArtista.clear();
+
+				if (codS == null || codS.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Artista creado correctamente");
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Artista creado correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
+				}
+
+				loadDataArtista();
+				clearAllData();
+				fotoArtista = null;
+				loadDataDiscografica();
+
+			}
+		});
+		// Editar Artista
+		btnEditarArtista.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+				if (!txtCodigoArtista.getText().isEmpty()) {
+					int cod = Integer.valueOf(txtCodigoArtista.getText());
+					artista = artistaDAO.selectArtistaById(cod);
+
+					String nombre = txtNombreArtista.getText();
+
+					if (nombre == null || nombre.trim().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Nombre vacio");
+						txtNombreArtista.requestFocus();
+						return;
+					}
+
+					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+						JOptionPane.showMessageDialog(null,
+								"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
+						txtNombreArtista.requestFocus();
+						return;
+					}
+
+					try {
+						String fechaNacS = datePickerArtista.getDate().toString();
+					} catch (NullPointerException e) {
+						JOptionPane.showMessageDialog(null, "Fecha de nacimiento vacia");
+						return;
+					}
+
+					LocalDate fechaNac = datePickerArtista.getDate();
+
+					artista.setNombre(nombre);
+					artista.setFechaNac(fechaNac);
+					if (fotoArtista != null) {
+						artista.setImagen(fotoArtista);
+					}
+					artista.getDiscograficas().clear();
+					discograficasArtista.forEach(d -> {
+						artista.anyadirDiscografica(d);
+					});
+					artistaDAO.updateArtista(artista);
+
+					artista = null;
+
+					loadDataArtista();
+					clearAllData();
+					fotoArtista = null;
+					loadDataDiscografica();
+
+				} else {
+					JOptionPane.showMessageDialog(null, "Ningun artista seleccionado, realice un clic en la tabla");
+				}
+			}
+
+		});
+		// Eliminar Artista
+		btnEliminarArtista.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				if (!txtCodigoArtista.getText().isEmpty()) {
+					if (JOptionPane.showConfirmDialog(null, "¿Seguro que quieres eliminarla?", "Eliminar",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+						int cod = Integer.valueOf(txtCodigoArtista.getText());
+						try {
+							artistaDAO.deleteArtista(cod);
+							JOptionPane.showMessageDialog(null, "Artista eliminado/a");
+							loadDataArtista();
+						} catch (SQLException e) {
+							JOptionPane.showMessageDialog(null, e.getMessage());
+						}
+						clearAllData();
+						fotoArtista = null;
+						loadDataDiscografica();
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "Ningun artista seleccionado, realice un clic en la tabla");
+				}
+
+			}
+
+		});
+		// Elegir foto Artista
+		btnElegirFotoArtista.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+
+					JFileChooser chooser = new JFileChooser();
+					chooser.showOpenDialog(null);
+					File f = chooser.getSelectedFile();
+
+					txtImagenArtista.setText(f.getAbsolutePath());
+
+					try {
+						fotoArtista = fileToBlob(f);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+
+					BufferedImage img = ImageIO.read(f);
+					Image dimg = img.getScaledInstance(lblFotoArtista.getWidth(), lblFotoArtista.getHeight(),
+							Image.SCALE_SMOOTH);
+					ImageIcon icon = new ImageIcon(dimg);
+					lblFotoArtista.setIcon(icon);
+				} catch (NullPointerException e1) {
+					e1.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		// Anyadir
+		btnAnyadir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					int cod = Integer.valueOf(comboBoxA.getSelectedItem().toString());
+					txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + " " + cod + " ");
+
+					discografica = discograficaDAO.selectDiscograficaById(cod);
+					discograficasArtista.add(discografica);
+					comboBoxA.removeItem(cod);
+					comboBoxQ.addItem(cod);
+				} catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(null, "Ninguna discografica que anyadir");
+				}
+
+			}
+		});
+		// Quitar
+		btnQuitar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					int cod = Integer.valueOf(comboBoxQ.getSelectedItem().toString());
+					txtDiscograficasArtista
+							.setText(txtDiscograficasArtista.getText().replace((" " + String.valueOf(cod) + " "), ""));
+
+					discografica = discograficaDAO.selectDiscograficaById(cod);
+
+					discograficasArtista.removeIf(d -> String.valueOf(d.getCodDis()).equals(String.valueOf(cod)));
+
+					comboBoxQ.removeItem(cod);
+					comboBoxA.addItem(cod);
+				} catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(null, "Ninguna discografica que quitar");
+				}
+
+			}
+		});
+
+		// Crear Album
+		btnCrearAlbum.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				String artistaS = txtArtistaAlbum.getText();
+				String nombre = txtNombreAlbum.getText();
+				String generos = txtGenerosAlbum.getText();
+				String discografica = comboBoxDiscograficaAlbum.getSelectedItem().toString();
+				String descripcion = txtrDescripcionAlbum.getText();
+
+				if (artistaS == null || artistaS.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null,
+							"Artista no seleccionado, realice un clic en la tabla de artistas");
+					txtArtistaAlbum.requestFocus();
+					return;
+				}
+
+				if (nombre == null || nombre.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Nombre vacio");
+					txtNombreAlbum.requestFocus();
+					return;
+				}
+				
+				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+					JOptionPane.showMessageDialog(null,
+							"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
+					txtNombreAlbum.requestFocus();
+					return;
+				}
+				
+				try {
+					String fechaS = datePickerAlbum.getDate().toString();
+				} catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(null, "Fecha vacia");
+					return;
+				}
+				if (generos == null || generos.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Generos vacios");
+					txtGenerosAlbum.requestFocus();
+					return;
+				}
+				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,100}", generos)) {
+					JOptionPane.showMessageDialog(null,
+							"Generos incorrectos, solo letras, espacios y maximo 100 caracteres");
+					txtGenerosAlbum.requestFocus();
+					return;
+				}
+
+				if (descripcion == null || descripcion.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Descripcion vacia");
+					txtrDescripcionAlbum.requestFocus();
+					return;
+				}
+				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ., ]{1,500}", descripcion)) {
+					JOptionPane.showMessageDialog(null,
+							"Descripcion incorrecta, solo letras, espacios, puntos, enters, comas y maximo 500 caracteres");
+					txtrDescripcionAlbum.requestFocus();
+					return;
+				}
+				String codS = txtCodigoAlbum.getText();
+				int artista = Integer.valueOf(artistaS);
+				LocalDate fecha = datePickerAlbum.getDate();
+
+				album = new Album(nombre, fecha, generos, descripcion, discografica, fotoAlbum, artista);
+				albumDAO.insertAlbum(album);
+				album = null;
+
+				albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(txtCodigoArtista.getText()));
+				loadAlbumes(albums);
+				txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
+
+				clearAlbumData();
+				fotoAlbum = null;
+
+				if (codS == null || codS.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Album creado correctamente");
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Album creado correctamente, pero el id asignado es aleatorio aún que haya seleccionado uno");
+				}
+			}
+
+		});
+		// Editar Album
+		btnEditarAlbum.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				if (txtArtistaAlbum.getText() == null || txtArtistaAlbum.getText().trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null,
+							"Artista no seleccionado, realice un clic en la tabla de artistas");
+					txtArtistaAlbum.requestFocus();
+					return;
+				}
+				if (!txtCodigoAlbum.getText().isEmpty()) {
+					String nombre = txtNombreAlbum.getText();
+					String generos = txtGenerosAlbum.getText();
+					String discografica = comboBoxDiscograficaAlbum.getSelectedItem().toString();
+					String descripcion = txtrDescripcionAlbum.getText();
+					int cod = Integer.valueOf(txtCodigoAlbum.getText());
+					album = albumDAO.selectAlbumById(cod);
+
+					if (nombre == null || nombre.trim().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Nombre vacio");
+						txtNombreAlbum.requestFocus();
+						return;
+					}
+					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+						JOptionPane.showMessageDialog(null,
+								"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
+						txtNombreAlbum.requestFocus();
+						return;
+					}
+					try {
+						String fechaS = datePickerAlbum.getDate().toString();
+					} catch (NullPointerException e) {
+						JOptionPane.showMessageDialog(null, "Fecha vacia");
+						return;
+					}
+					if (generos == null || generos.trim().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Generos vacios");
+						txtGenerosAlbum.requestFocus();
+						return;
+					}
+					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,100}", generos)) {
+						JOptionPane.showMessageDialog(null,
+								"Generos incorrectos, solo letras, espacios y maximo 100 caracteres");
+						txtGenerosAlbum.requestFocus();
+						return;
+					}
+				
+					if (descripcion == null || descripcion.trim().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "Descripción vacia");
+						txtrDescripcionAlbum.requestFocus();
+						return;
+					}
+					LocalDate fecha = datePickerAlbum.getDate();
+
+					album.setNombre(nombre);
+					album.setFecha(fecha);
+					album.setGeneros(generos);
+					album.setDiscografica(discografica);
+					album.setDescripcion(descripcion);
+					if (fotoAlbum != null) {
+						album.setImagen(fotoAlbum);
+					}
+					albumDAO.updateAlbum(album);
+					album = null;
+
+					albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(txtCodigoArtista.getText()));
+					loadAlbumes(albums);
+					txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
+
+					clearAlbumData();
+					fotoAlbum = null;
+
+				} else {
+					JOptionPane.showMessageDialog(null, "Ningun album seleccionado, realice un clic en la tabla");
+				}
+
+			}
+		});
+		// Eliminar Album
+		btnEliminarAlbum.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+
+				if (!txtCodigoAlbum.getText().isEmpty()) {
+
+					if (JOptionPane.showConfirmDialog(null, "¿Seguro que quieres eliminarlo?", "Eliminar",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+						int cod = Integer.valueOf(txtCodigoAlbum.getText());
+						albumDAO.deleteAlbum(cod);
+						JOptionPane.showMessageDialog(null, "Album eliminado/a");
+
+						albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(txtCodigoArtista.getText()));
+						loadAlbumes(albums);
+						txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
+
+						clearAlbumData();
+						fotoAlbum = null;
+					}
+
+				} else {
+					JOptionPane.showMessageDialog(null, "Ninguna album seleccionado, realice un clic en la tabla");
+				}
+
+			}
+		});
+		// Elegir foto Album
+		btnElegirFotoAlbum.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String artistaS = txtArtistaAlbum.getText();
+
+				if (artistaS == null || artistaS.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null,
+							"Album no seleccionado, realice un clic en la tabla de artistas");
+					txtArtistaAlbum.requestFocus();
+					return;
+				}
+
+				try {
+
+					JFileChooser chooser = new JFileChooser();
+					chooser.showOpenDialog(null);
+					File f = chooser.getSelectedFile();
+					txtImagenAlbum.setText(f.getAbsolutePath());
+					try {
+						fotoAlbum = fileToBlob(f);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					BufferedImage img = ImageIO.read(f);
+					Image dimg = img.getScaledInstance(lblFotoAlbum.getWidth(), lblFotoAlbum.getHeight(),
+							Image.SCALE_SMOOTH);
+					ImageIcon icon = new ImageIcon(dimg);
+					lblFotoAlbum.setIcon(icon);
+				} catch (NullPointerException e1) {
+					e1.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		// Botones Discografica
+		// Crear Discografica
 		btnCrearDiscografica.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String nombre = txtNombreDiscografica.getText();
@@ -1281,17 +1228,31 @@ public class App {
 					txtNombreDiscografica.requestFocus();
 					return;
 				}
-
-				try {
-					String fechaFunS = datePickerDiscografica.getDate().toString();
-				} catch (NullPointerException e) {
-					JOptionPane.showMessageDialog(null, "Fecha de fundacion vacia");
+				
+				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+					JOptionPane.showMessageDialog(null,
+							"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
+					txtNombreDiscografica.requestFocus();
 					return;
 				}
+
+				
 
 				if (pais == null || pais.trim().isEmpty()) {
 					JOptionPane.showMessageDialog(null, "Pais vacio");
 					txtPaisDiscografica.requestFocus();
+					return;
+				}
+				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", pais)) {
+					JOptionPane.showMessageDialog(null,
+							"Pais incorrecto, solo letras, espacios y maximo 45 caracteres");
+					txtNombreDiscografica.requestFocus();
+					return;
+				}
+				try {
+					String fechaFunS = datePickerDiscografica.getDate().toString();
+				} catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(null, "Fecha de fundacion vacia");
 					return;
 				}
 
@@ -1310,11 +1271,11 @@ public class App {
 				}
 
 				loadDataDiscografica();
-				clearDiscograficaData();
+				clearAllData();
 				fotoArtista = null;
 			}
 		});
-		// Editar
+		// Editar Discografica
 		btnEditarDiscografica.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (!txtCodigoDiscografica.getText().isEmpty()) {
@@ -1330,9 +1291,22 @@ public class App {
 						return;
 					}
 
+					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+						JOptionPane.showMessageDialog(null,
+								"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
+						txtNombreDiscografica.requestFocus();
+						return;
+					}
+
 					if (pais == null || pais.trim().isEmpty()) {
 						JOptionPane.showMessageDialog(null, "Pais vacio");
 						txtPaisDiscografica.requestFocus();
+						return;
+					}
+					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", pais)) {
+						JOptionPane.showMessageDialog(null,
+								"Pais incorrecto, solo letras, espacios y maximo 45 caracteres");
+						txtNombreDiscografica.requestFocus();
 						return;
 					}
 
@@ -1362,7 +1336,7 @@ public class App {
 				}
 			}
 		});
-		// Eliminar
+		// Eliminar Discografica
 		btnEliminarDiscografica.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
@@ -1383,7 +1357,7 @@ public class App {
 
 			}
 		});
-		// Elegir foto
+		// Elegir foto Discografica
 		btnElegirFotoDiscografica.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
@@ -1411,7 +1385,103 @@ public class App {
 				}
 			}
 		});
-		// Tabla
+
+		// Tablas
+		// Tabla Artista
+		tableArtista.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				clearAlbumData();
+				int index = tableArtista.getSelectedRow();
+				TableModel modelArtista = tableArtista.getModel();
+				codArtistaSelec = (int) modelArtista.getValueAt(index, 0);
+
+				txtCodigoArtista.setText(String.valueOf(codArtistaSelec));
+				txtNombreArtista.setText(modelArtista.getValueAt(index, 1).toString());
+
+				datePickerArtista.setDate(cambiarFormatoFechaJavaNat(modelArtista.getValueAt(index, 2).toString()));
+
+				artista = artistaDAO.selectArtistaById(codArtistaSelec);
+
+				InputStream in;
+				try {
+					in = artista.getImagen().getBinaryStream();
+					BufferedImage img = ImageIO.read(in);
+					Image dimg = img.getScaledInstance(lblFotoArtista.getWidth(), lblFotoArtista.getHeight(),
+							Image.SCALE_SMOOTH);
+					ImageIcon icon = new ImageIcon(dimg);
+					lblFotoArtista.setIcon(icon);
+					lblFotoArtista.setText(null);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (NullPointerException e2) {
+					lblFotoArtista.setIcon(null);
+					lblFotoArtista.setText("No foto");
+				}
+
+				loadDataDiscografica();
+				discograficasArtista = artista.getDiscograficas();
+
+				txtDiscograficasArtista.setText(null);
+
+				comboBoxQ.removeAllItems();
+				discograficasArtista.forEach(d -> {
+					txtDiscograficasArtista.setText(txtDiscograficasArtista.getText() + " " + d.getCodDis() + " ");
+					comboBoxA.removeItem(d.getCodDis());
+					comboBoxQ.addItem(d.getCodDis());
+				});
+
+				albums = albumDAO.selectAllAlbumsByArtista(codArtistaSelec);
+				loadAlbumes(albums);
+				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
+
+			}
+
+		});
+
+		// Tabla Album
+		tableAlbum.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int index = tableAlbum.getSelectedRow();
+				TableModel modelAlbum = tableAlbum.getModel();
+				int cod = Integer.valueOf(modelAlbum.getValueAt(index, 0).toString());
+
+				txtCodigoAlbum.setText(String.valueOf(cod));
+				txtNombreAlbum.setText(modelAlbum.getValueAt(index, 1).toString());
+				datePickerAlbum.setDate(cambiarFormatoFechaJavaNat(modelAlbum.getValueAt(index, 2).toString()));
+				txtGenerosAlbum.setText(modelAlbum.getValueAt(index, 3).toString());
+				comboBoxDiscograficaAlbum.setSelectedItem(modelAlbum.getValueAt(index, 4));
+
+				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
+
+				album = albumDAO.selectAlbumById(cod);
+
+				txtrDescripcionAlbum.setText(album.getDescripcion());
+
+				InputStream in;
+				try {
+					in = album.getImagen().getBinaryStream();
+					BufferedImage img = ImageIO.read(in);
+					Image dimg = img.getScaledInstance(lblFotoAlbum.getWidth(), lblFotoAlbum.getHeight(),
+							Image.SCALE_SMOOTH);
+					ImageIcon icon = new ImageIcon(dimg);
+					lblFotoAlbum.setIcon(icon);
+					lblFotoAlbum.setText(null);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (NullPointerException e2) {
+					lblFotoAlbum.setIcon(null);
+					lblFotoAlbum.setText("No foto");
+				}
+
+			}
+		});
+		// Tabla Discografica
 		tableDiscografica.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
