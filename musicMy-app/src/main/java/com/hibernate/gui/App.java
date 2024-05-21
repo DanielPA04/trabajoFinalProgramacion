@@ -357,6 +357,63 @@ public class App {
 
 		return new SerialBlob(byteArray);
 	}
+	
+	//Metodos sobrecargados para mostrar una imagen en un tipo de objeto (lbl, jbutton)
+	public void showImg(Object o, JLabel lbl) {
+		InputStream in = null;
+		try {
+			if (o instanceof Album) {
+				in = ((Album) o).getImagen().getBinaryStream();
+			} else if (o instanceof Artista) {
+				in = ((Artista) o).getImagen().getBinaryStream();
+			} else if (o instanceof Discografica) {
+				in = ((Discografica) o).getImagen().getBinaryStream();
+			}
+			BufferedImage img = ImageIO.read(in);
+			Image dimg = img.getScaledInstance(lbl.getWidth(), lbl.getHeight(), Image.SCALE_SMOOTH);
+			ImageIcon icon = new ImageIcon(dimg);
+			lbl.setIcon(icon);
+			lbl.setText(null);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (NullPointerException e2) {
+			lbl.setIcon(null);
+			lbl.setText("No foto");
+		}
+	}
+
+	public void showImg(Blob b, JLabel lbl) {
+		try {
+			InputStream in = b.getBinaryStream();
+			BufferedImage img = ImageIO.read(in);
+			Image dimg = img.getScaledInstance(lbl.getWidth(), lbl.getHeight(), Image.SCALE_SMOOTH);
+			ImageIcon icon = new ImageIcon(dimg);
+			lbl.setIcon(icon);
+			lbl.setText(null);
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (NullPointerException e2) {
+			lbl.setIcon(null);
+			lbl.setText("No foto");
+		}
+	}
+
+	public void showImg(File f, JButton b) {
+		try {
+			BufferedImage img = ImageIO.read(f);
+			Image dimg = img.getScaledInstance(b.getWidth(), b.getHeight(), Image.SCALE_SMOOTH);
+			ImageIcon icon = new ImageIcon(dimg);
+			b.setIcon(icon);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		} catch (NullPointerException e2) {
+			e2.printStackTrace();
+		}
+	}
 
 	/**
 	 * Launch the application.
@@ -451,8 +508,11 @@ public class App {
 		tableArtista.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		tableArtista.setBounds(0, 0, 50, 50);
 		scrollPaneArtista = new JScrollPane(tableArtista);
-		scrollPaneArtista.setBounds(12, 0, 308, 189);
+		scrollPaneArtista.setBounds(0, 34, 308, 189);
 		frame.getContentPane().add(scrollPaneArtista);
+
+		JLabel label = new JLabel("New label");
+		scrollPaneArtista.setColumnHeaderView(label);
 
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -464,86 +524,95 @@ public class App {
 //		TableRowSorter<TableModel> rowSorterArtista = new TableRowSorter<TableModel>(modelArtista);
 //		tableArtista.setRowSorter(rowSorterArtista);
 
+		JLabel lblArtista = new JLabel("Artista");
+		lblArtista.setBounds(134, 9, 46, 14);
+		frame.getContentPane().add(lblArtista);
+
 		JLabel lblCodigoArtista = new JLabel("Codigo: ");
-		lblCodigoArtista.setBounds(12, 201, 139, 15);
+		lblCodigoArtista.setBounds(12, 250, 139, 15);
 		frame.getContentPane().add(lblCodigoArtista);
 
 		JLabel lblNombreArtista = new JLabel("Nombre: ");
-		lblNombreArtista.setBounds(12, 228, 139, 15);
+		lblNombreArtista.setBounds(12, 276, 139, 15);
 		frame.getContentPane().add(lblNombreArtista);
 
 		JLabel lblFechaNacimientoArtista = new JLabel("Fecha Nacimiento:");
-		lblFechaNacimientoArtista.setBounds(12, 255, 139, 15);
+		lblFechaNacimientoArtista.setBounds(12, 302, 139, 15);
 		frame.getContentPane().add(lblFechaNacimientoArtista);
 
 		DatePickerSettings datePickerSettingsArtista = new DatePickerSettings();
 		datePickerSettingsArtista.setFormatForDatesCommonEra("dd/MM/yyyy");
 		datePickerSettingsArtista.setAllowKeyboardEditing(false);
 		datePickerArtista = new DatePicker(datePickerSettingsArtista);
-		datePickerArtista.setBounds(169, 253, 212, 25);
+		datePickerArtista.setBounds(161, 297, 212, 25);
 		frame.getContentPane().add(datePickerArtista);
 
 		txtNombreArtista = new JTextField();
-		txtNombreArtista.setBounds(169, 226, 114, 19);
+		txtNombreArtista.setBounds(161, 273, 114, 19);
 		frame.getContentPane().add(txtNombreArtista);
 		txtNombreArtista.setColumns(10);
 
 		txtCodigoArtista = new JTextField();
 		txtCodigoArtista.setEditable(false);
-		txtCodigoArtista.setBounds(169, 199, 114, 19);
+		txtCodigoArtista.setBounds(161, 247, 114, 19);
 		frame.getContentPane().add(txtCodigoArtista);
 		txtCodigoArtista.setColumns(10);
 
 		txtImagenArtista = new JTextField();
-		txtImagenArtista.setEnabled(false);
-		txtImagenArtista.setBounds(12, 306, 139, 19);
+		txtImagenArtista.setEditable(false);
+		txtImagenArtista.setBounds(12, 328, 139, 19);
 		frame.getContentPane().add(txtImagenArtista);
 		txtImagenArtista.setColumns(10);
 
 		JButton btnElegirFotoArtista = new JButton("Elegir foto");
-		btnElegirFotoArtista.setBounds(166, 303, 117, 25);
+		btnElegirFotoArtista.setBounds(161, 326, 117, 25);
 		frame.getContentPane().add(btnElegirFotoArtista);
 
-		JButton btnCrearArtista = new JButton("Crear");
-		btnCrearArtista.setBounds(97, 337, 117, 25);
+		JButton btnCrearArtista = new JButton();
+		btnCrearArtista.setBounds(108, 358, 25, 25);
 		frame.getContentPane().add(btnCrearArtista);
+		showImg(new File("img/crear.png"), btnCrearArtista);
 
-		JButton btnEditarArtista = new JButton("Editar");
-		btnEditarArtista.setBounds(97, 374, 117, 25);
+		JButton btnEditarArtista = new JButton();
+		btnEditarArtista.setBounds(155, 358, 25, 25);
 		frame.getContentPane().add(btnEditarArtista);
+		showImg(new File("img/editar.png"), btnEditarArtista);
 
-		JButton btnEliminarArtista = new JButton("Eliminar");
-		btnEliminarArtista.setBounds(97, 411, 117, 25);
+		JButton btnEliminarArtista = new JButton();
+		btnEliminarArtista.setBounds(204, 358, 25, 25);
 		frame.getContentPane().add(btnEliminarArtista);
+		showImg(new File("img/eliminar.png"), btnEliminarArtista);
 
-		JButton btnAnyadir = new JButton("Anyadir");
-		btnAnyadir.setBounds(124, 448, 117, 25);
+		JButton btnAnyadir = new JButton();
+		btnAnyadir.setBounds(126, 424, 25, 25);
 		frame.getContentPane().add(btnAnyadir);
+		showImg(new File("img/anadir.png"), btnAnyadir);
 
-		JButton btnQuitar = new JButton("Quitar");
-		btnQuitar.setBounds(124, 485, 117, 25);
+		JButton btnQuitar = new JButton();
+		btnQuitar.setBounds(126, 460, 25, 25);
 		frame.getContentPane().add(btnQuitar);
+		showImg(new File("img/boton-eliminar.png"), btnQuitar);
 
 		comboBoxA = new JComboBox();
-		comboBoxA.setBounds(12, 449, 100, 24);
+		comboBoxA.setBounds(12, 424, 102, 23);
 		frame.getContentPane().add(comboBoxA);
 
 		comboBoxQ = new JComboBox();
-		comboBoxQ.setBounds(12, 485, 100, 24);
+		comboBoxQ.setBounds(12, 458, 100, 25);
 		frame.getContentPane().add(comboBoxQ);
 
 		lblFotoArtista = new JLabel("");
-		lblFotoArtista.setBounds(320, 0, 139, 189);
+		lblFotoArtista.setBounds(307, 34, 139, 189);
 		frame.getContentPane().add(lblFotoArtista);
 
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(253, 448, 174, 25);
+		scrollPane.setBounds(161, 442, 174, 25);
 		frame.getContentPane().add(scrollPane);
-		
-				txtDiscograficasArtista = new JTextArea();
-				scrollPane.setViewportView(txtDiscograficasArtista);
-				txtDiscograficasArtista.setEditable(false);
-				txtDiscograficasArtista.setColumns(10);
+
+		txtDiscograficasArtista = new JTextArea();
+		scrollPane.setViewportView(txtDiscograficasArtista);
+		txtDiscograficasArtista.setEditable(false);
+		txtDiscograficasArtista.setColumns(10);
 
 		// Album
 		comboBoxDiscograficaAlbum = new JComboBox();
@@ -647,17 +716,20 @@ public class App {
 		frame.getContentPane().add(txtImagenAlbum);
 		txtImagenAlbum.setColumns(10);
 
-		JButton btnCrearAlbum = new JButton("Crear");
-		btnCrearAlbum.setBounds(740, 424, 117, 25);
+		JButton btnCrearAlbum = new JButton();
+		btnCrearAlbum.setBounds(740, 424, 25, 25);
 		frame.getContentPane().add(btnCrearAlbum);
+		showImg(new File("img/crear.png"), btnCrearAlbum);
 
-		JButton btnEditarAlbum = new JButton("Editar");
-		btnEditarAlbum.setBounds(740, 461, 117, 25);
+		JButton btnEditarAlbum = new JButton();
+		btnEditarAlbum.setBounds(740, 461, 25, 25);
 		frame.getContentPane().add(btnEditarAlbum);
+		showImg(new File("img/editar.png"), btnEditarAlbum);
 
-		JButton btnEliminarAlbum = new JButton("Eliminar");
-		btnEliminarAlbum.setBounds(740, 498, 117, 25);
+		JButton btnEliminarAlbum = new JButton();
+		btnEliminarAlbum.setBounds(740, 498, 25, 25);
 		frame.getContentPane().add(btnEliminarAlbum);
+		showImg(new File("img/eliminar.png"), btnEliminarAlbum);
 
 		JScrollPane scrollPaneDescripcionAlbum = new JScrollPane();
 		scrollPaneDescripcionAlbum.setBounds(476, 387, 174, 171);
@@ -767,24 +839,27 @@ public class App {
 		frame.getContentPane().add(txtImagenDiscografica);
 		txtImagenDiscografica.setColumns(10);
 
-		JButton btnCrearDiscografica = new JButton("Crear");
+		JButton btnCrearDiscografica = new JButton("");
 		btnCrearDiscografica.setBounds(1347, 387, 117, 25);
 		frame.getContentPane().add(btnCrearDiscografica);
+		showImg(new File("img/crear.png"), btnCrearDiscografica);
 
-		JButton btnEditarDiscografica = new JButton("Editar");
+		JButton btnEditarDiscografica = new JButton("");
 		btnEditarDiscografica.setBounds(1347, 424, 117, 25);
 		frame.getContentPane().add(btnEditarDiscografica);
+		showImg(new File("img/editar.png"), btnEditarDiscografica);
 
-		JButton btnEliminarDiscografica = new JButton("Eliminar");
+		JButton btnEliminarDiscografica = new JButton("");
 		btnEliminarDiscografica.setBounds(1347, 461, 117, 25);
 		frame.getContentPane().add(btnEliminarDiscografica);
+		showImg(new File("img/eliminar.png"), btnEliminarDiscografica);
 
 		lblFotoDiscografica = new JLabel("");
 		lblFotoDiscografica.setBounds(1068, 0, 139, 189);
 		frame.getContentPane().add(lblFotoDiscografica);
 
 		JLabel lblDiscograficasArtista = new JLabel("Discograficas: ");
-		lblDiscograficasArtista.setBounds(253, 429, 117, 15);
+		lblDiscograficasArtista.setBounds(12, 394, 117, 15);
 		frame.getContentPane().add(lblDiscograficasArtista);
 
 		;
@@ -802,7 +877,7 @@ public class App {
 					return;
 				}
 
-				if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+				if (!comprobarER("[A-Za-z ]{1,45}", nombre)) {
 					JOptionPane.showMessageDialog(null,
 							"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
 					txtNombreArtista.requestFocus();
@@ -853,13 +928,13 @@ public class App {
 					String nombre = txtNombreArtista.getText();
 
 					if (nombre == null || nombre.trim().isEmpty()) {
-						JOptionPane.showMessageDialog(frame, "Nombre vacio",
-					               "Error Artista", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(frame, "Nombre vacio", "Error Artista",
+								JOptionPane.ERROR_MESSAGE);
 						txtNombreArtista.requestFocus();
 						return;
 					}
 
-					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+					if (!comprobarER("[A-Za-z ]{1,45}", nombre)) {
 						JOptionPane.showMessageDialog(null,
 								"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
 						txtNombreArtista.requestFocus();
@@ -904,7 +979,7 @@ public class App {
 			public void actionPerformed(ActionEvent arg0) {
 
 				if (!txtCodigoArtista.getText().isEmpty()) {
-					if (JOptionPane.showConfirmDialog(null, "¿Seguro que quieres eliminarla?", "Eliminar",
+					if (JOptionPane.showConfirmDialog(null, "¿Seguro que quieres eliminarlo?", "Eliminar",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
 						int cod = Integer.valueOf(txtCodigoArtista.getText());
 						try {
@@ -983,8 +1058,6 @@ public class App {
 
 					discograficasArtista.removeIf(d -> String.valueOf(d.getCodDis()).equals(String.valueOf(cod)));
 
-
-
 					comboBoxQ.removeItem(cod);
 					comboBoxA.addItem(cod);
 				} catch (NullPointerException e) {
@@ -1016,14 +1089,14 @@ public class App {
 					txtNombreAlbum.requestFocus();
 					return;
 				}
-				
+
 				if (!comprobarER("[A-Za-z ]{1,45}", nombre)) {
 					JOptionPane.showMessageDialog(null,
 							"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
 					txtNombreAlbum.requestFocus();
 					return;
 				}
-				
+
 				try {
 					String fechaS = datePickerAlbum.getDate().toString();
 				} catch (NullPointerException e) {
@@ -1123,7 +1196,7 @@ public class App {
 						txtGenerosAlbum.requestFocus();
 						return;
 					}
-				
+
 					if (descripcion == null || descripcion.trim().isEmpty()) {
 						JOptionPane.showMessageDialog(null, "Descripción vacia");
 						txtrDescripcionAlbum.requestFocus();
@@ -1231,15 +1304,13 @@ public class App {
 					txtNombreDiscografica.requestFocus();
 					return;
 				}
-				
+
 				if (!comprobarER("[A-Za-z ]{1,45}", nombre)) {
 					JOptionPane.showMessageDialog(null,
 							"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
 					txtNombreDiscografica.requestFocus();
 					return;
 				}
-
-				
 
 				if (pais == null || pais.trim().isEmpty()) {
 					JOptionPane.showMessageDialog(null, "Pais vacio");
@@ -1294,7 +1365,7 @@ public class App {
 						return;
 					}
 
-					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", nombre)) {
+					if (!comprobarER("[A-Za-z ]{1,45}", nombre)) {
 						JOptionPane.showMessageDialog(null,
 								"Nombre incorrecto, solo letras, espacios y maximo 45 caracteres");
 						txtNombreDiscografica.requestFocus();
@@ -1306,7 +1377,7 @@ public class App {
 						txtPaisDiscografica.requestFocus();
 						return;
 					}
-					if (!comprobarER("[A-Za-zäÄëËïÏöÖüÜáéíóúáéíóúÁÉÍÓÚÂÊÎÔÛâêîôûàèìòùÀÈÌÒÙ ]{1,45}", pais)) {
+					if (!comprobarER("[A-Za-z ]{1,45}", pais)) {
 						JOptionPane.showMessageDialog(null,
 								"Pais incorrecto, solo letras, espacios y maximo 45 caracteres");
 						txtNombreDiscografica.requestFocus();
@@ -1405,6 +1476,8 @@ public class App {
 				datePickerArtista.setDate(cambiarFormatoFechaJavaNat(modelArtista.getValueAt(index, 2).toString()));
 
 				artista = artistaDAO.selectArtistaById(codArtistaSelec);
+
+//				showBlobOnLabel(artista, lblFotoArtista);
 
 				InputStream in;
 				try {
