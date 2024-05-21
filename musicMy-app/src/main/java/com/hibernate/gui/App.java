@@ -663,6 +663,10 @@ public class App {
 		datePickerAlbum.setBounds(798, 298, 212, 25);
 		frame.getContentPane().add(datePickerAlbum);
 
+		JLabel lblAlbum = new JLabel("Album");
+		lblAlbum.setBounds(798, 9, 70, 15);
+		frame.getContentPane().add(lblAlbum);
+
 		txtCodigoAlbum = new JTextField();
 		txtCodigoAlbum.setEditable(false);
 		txtCodigoAlbum.setBounds(798, 248, 114, 19);
@@ -875,10 +879,6 @@ public class App {
 		lblDiscograficasArtista.setBounds(12, 394, 117, 15);
 		frame.getContentPane().add(lblDiscograficasArtista);
 
-		JLabel lblAlbum = new JLabel("Album");
-		lblAlbum.setBounds(798, 9, 70, 15);
-		frame.getContentPane().add(lblAlbum);
-
 		JLabel lblDiscografica = new JLabel("Discografica");
 		lblDiscografica.setBounds(1328, 9, 102, 15);
 		frame.getContentPane().add(lblDiscografica);
@@ -985,6 +985,7 @@ public class App {
 						artista.anyadirDiscografica(d);
 					});
 					artistaDAO.updateArtista(artista);
+					JOptionPane.showMessageDialog(frame, "Artista actualizado");
 
 					artista = null;
 
@@ -1044,12 +1045,6 @@ public class App {
 						e.printStackTrace();
 					}
 					showImg(fotoArtista, lblFotoArtista);
-
-//					BufferedImage img = ImageIO.read(f);
-//					Image dimg = img.getScaledInstance(lblFotoArtista.getWidth(), lblFotoArtista.getHeight(),
-//							Image.SCALE_SMOOTH);
-//					ImageIcon icon = new ImageIcon(dimg);
-//					lblFotoArtista.setIcon(icon);
 				} catch (NullPointerException e1) {
 					e1.printStackTrace();
 				}
@@ -1151,7 +1146,7 @@ public class App {
 					txtrDescripcionAlbum.requestFocus();
 					return;
 				}
-				if (!comprobarER("[a-zA-Z\\-!\"#$%&'()*+,./:;?@\\n ]{1,500}", descripcion)) {
+				if (!comprobarER("[a-zA-Z0-9\\-!\"#$%&'()*+,./:;?@\\n ]{1,500}", descripcion)) {
 					JOptionPane.showMessageDialog(frame,
 							"Descripcion incorrecta, solo letras, espacios, puntos, enters, comas y maximo 500 caracteres",
 							"Error Album", JOptionPane.ERROR_MESSAGE);
@@ -1194,6 +1189,7 @@ public class App {
 					return;
 				}
 				if (!txtCodigoAlbum.getText().isEmpty()) {
+					String codArt = txtArtistaAlbum.getText();
 					String nombre = txtNombreAlbum.getText();
 					String generos = txtGenerosAlbum.getText();
 					String discografica = comboBoxDiscograficaAlbum.getSelectedItem().toString();
@@ -1239,6 +1235,14 @@ public class App {
 						txtrDescripcionAlbum.requestFocus();
 						return;
 					}
+					if (!comprobarER("[a-zA-Z0-9\\-!\"#$%&'()*+,./:;?@\\n ]{1,500}", descripcion)) {
+						JOptionPane.showMessageDialog(frame,
+								"Descripcion incorrecta, solo letras, espacios, puntos, enters, comas y maximo 500 caracteres",
+								"Error Album", JOptionPane.ERROR_MESSAGE);
+						txtrDescripcionAlbum.requestFocus();
+						return;
+					}
+
 					LocalDate fecha = datePickerAlbum.getDate();
 
 					album.setNombre(nombre);
@@ -1250,11 +1254,13 @@ public class App {
 						album.setImagen(fotoAlbum);
 					}
 					albumDAO.updateAlbum(album);
+					JOptionPane.showMessageDialog(frame, "Album actualizado");
+
 					album = null;
 
 					albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(txtCodigoArtista.getText()));
 					loadAlbumes(albums);
-					txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
+					txtArtistaAlbum.setText(codArt);
 
 					clearAlbumData();
 					fotoAlbum = null;
@@ -1317,15 +1323,9 @@ public class App {
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
-					BufferedImage img = ImageIO.read(f);
-					Image dimg = img.getScaledInstance(lblFotoAlbum.getWidth(), lblFotoAlbum.getHeight(),
-							Image.SCALE_SMOOTH);
-					ImageIcon icon = new ImageIcon(dimg);
-					lblFotoAlbum.setIcon(icon);
+					showImg(fotoAlbum, lblFotoAlbum);
 				} catch (NullPointerException e1) {
 					e1.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
 			}
 		});
@@ -1387,8 +1387,10 @@ public class App {
 							"Discografica creada correctamente, pero el id asignado es aleatorio aun que haya seleccionado uno");
 				}
 
-				loadDataDiscografica();
 				clearAllData();
+//				modelAlbum.setRowCount(0);
+				loadDataDiscografica();
+
 				fotoArtista = null;
 			}
 		});
@@ -1442,11 +1444,13 @@ public class App {
 					LocalDate fechaFun = datePickerDiscografica.getDate();
 
 					discografica.setNombre(nombre);
+					discografica.setPais(pais);
 					discografica.setFundacion(fechaFun);
 					if (fotoDiscografica != null) {
 						discografica.setImagen(fotoDiscografica);
 					}
 					discograficaDAO.updateDiscografica(discografica);
+					JOptionPane.showMessageDialog(frame, "Discografica actualizada");
 					discografica = null;
 					loadDataDiscografica();
 					clearDiscograficaData();
@@ -1469,8 +1473,9 @@ public class App {
 						int cod = Integer.valueOf(txtCodigoDiscografica.getText());
 						discograficaDAO.deleteDiscografica(cod);
 						JOptionPane.showMessageDialog(frame, "Discografica eliminada");
-						loadDataDiscografica();
 						clearAllData();
+//						modelAlbum.setRowCount(0);
+						loadDataDiscografica();
 						fotoDiscografica = null;
 					}
 				} else {
@@ -1498,15 +1503,10 @@ public class App {
 						e.printStackTrace();
 					}
 
-					BufferedImage img = ImageIO.read(f);
-					Image dimg = img.getScaledInstance(lblFotoDiscografica.getWidth(), lblFotoDiscografica.getHeight(),
-							Image.SCALE_SMOOTH);
-					ImageIcon icon = new ImageIcon(dimg);
-					lblFotoDiscografica.setIcon(icon);
+					showImg(fotoDiscografica, lblFotoDiscografica);
+
 				} catch (NullPointerException e1) {
 					e1.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
 			}
 		});
@@ -1529,24 +1529,6 @@ public class App {
 				artista = artistaDAO.selectArtistaById(codArtistaSelec);
 
 				showImg(artista, lblFotoArtista);
-
-//				InputStream in;
-//				try {
-//					in = artista.getImagen().getBinaryStream();
-//					BufferedImage img = ImageIO.read(in);
-//					Image dimg = img.getScaledInstance(lblFotoArtista.getWidth(), lblFotoArtista.getHeight(),
-//							Image.SCALE_SMOOTH);
-//					ImageIcon icon = new ImageIcon(dimg);
-//					lblFotoArtista.setIcon(icon);
-//					lblFotoArtista.setText(null);
-//				} catch (SQLException e1) {
-//					e1.printStackTrace();
-//				} catch (IOException e1) {
-//					e1.printStackTrace();
-//				} catch (NullPointerException e2) {
-//					lblFotoArtista.setIcon(null);
-//					lblFotoArtista.setText("No foto");
-//				}
 
 				loadDataDiscografica();
 				discograficasArtista = artista.getDiscograficas();
@@ -1582,29 +1564,14 @@ public class App {
 				txtGenerosAlbum.setText(modelAlbum.getValueAt(index, 3).toString());
 				comboBoxDiscograficaAlbum.setSelectedItem(modelAlbum.getValueAt(index, 4));
 
+
 				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
 
 				album = albumDAO.selectAlbumById(cod);
 
 				txtrDescripcionAlbum.setText(album.getDescripcion());
 
-				InputStream in;
-				try {
-					in = album.getImagen().getBinaryStream();
-					BufferedImage img = ImageIO.read(in);
-					Image dimg = img.getScaledInstance(lblFotoAlbum.getWidth(), lblFotoAlbum.getHeight(),
-							Image.SCALE_SMOOTH);
-					ImageIcon icon = new ImageIcon(dimg);
-					lblFotoAlbum.setIcon(icon);
-					lblFotoAlbum.setText(null);
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (NullPointerException e2) {
-					lblFotoAlbum.setIcon(null);
-					lblFotoAlbum.setText("No foto");
-				}
+				showImg(album, lblFotoAlbum);
 
 			}
 		});
@@ -1623,23 +1590,7 @@ public class App {
 						.setDate(cambiarFormatoFechaJavaNat(modelDiscografica.getValueAt(index, 3).toString()));
 				discografica = discograficaDAO.selectDiscograficaById(codDiscograficaSelec);
 
-				InputStream in;
-				try {
-					in = discografica.getImagen().getBinaryStream();
-					BufferedImage img = ImageIO.read(in);
-					Image dimg = img.getScaledInstance(lblFotoDiscografica.getWidth(), lblFotoDiscografica.getHeight(),
-							Image.SCALE_SMOOTH);
-					ImageIcon icon = new ImageIcon(dimg);
-					lblFotoDiscografica.setIcon(icon);
-					lblFotoDiscografica.setText(null);
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (NullPointerException e2) {
-					lblFotoDiscografica.setIcon(null);
-					lblFotoDiscografica.setText("No foto");
-				}
+				showImg(discografica, lblFotoDiscografica);
 
 			}
 		});
