@@ -47,7 +47,7 @@ public class ArtistaDAO {
 		} catch (Exception e) {
 			if (transaction != null) {
 				transaction.rollback();
-				throw new SQLException("El artista no ha podido ser eliminado");
+				throw new SQLException("El artista no ha podido ser eliminado, elimine sus albumes primero");
 			}
 		}
 	}

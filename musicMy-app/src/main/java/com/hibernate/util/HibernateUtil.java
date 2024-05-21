@@ -6,7 +6,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
-
 import com.hibernate.model.Album;
 import com.hibernate.model.Artista;
 import com.hibernate.model.Discografica;
