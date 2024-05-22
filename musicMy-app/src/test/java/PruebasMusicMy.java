@@ -1,11 +1,9 @@
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.jupiter.api.Assertions.*; 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDate;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -65,7 +63,7 @@ class PruebasMusicMy {
 	@Test
 	void testFileToBlob() {
 		try {
-			File f = new File("/home/a026944757g/Imágenes/Fondos de escritorio/images.png");
+			File f = new File("img/anadir.png");
 			Blob img = App.fileToBlob(f);
 			System.out.println("Blob transformado"+img);
 			assertNotEquals(img, null);
