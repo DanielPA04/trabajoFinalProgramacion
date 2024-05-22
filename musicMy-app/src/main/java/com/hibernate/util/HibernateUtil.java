@@ -6,7 +6,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
-
 import com.hibernate.model.Album;
 import com.hibernate.model.Artista;
 import com.hibernate.model.Discografica;
@@ -21,9 +20,9 @@ public class HibernateUtil {
 
 				Properties settings = new Properties();
 				settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
-				settings.put(Environment.URL, "jdbc:mysql://127.0.0.1:3307/musicMy?useSSL=false");
-				settings.put(Environment.USER, "alumno");
-				settings.put(Environment.PASS, "alumno");
+				settings.put(Environment.URL, "jdbc:mysql://127.0.0.1:3306/musicMy?useSSL=false");
+				settings.put(Environment.USER, "root");
+				settings.put(Environment.PASS, "patata");
 				settings.put(Environment.SHOW_SQL, "false");
 				settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 				settings.put(Environment.HBM2DDL_AUTO, "update");
@@ -33,7 +32,6 @@ public class HibernateUtil {
 				configuration.addAnnotatedClass(Artista.class);
 				configuration.addAnnotatedClass(Album.class);
 				configuration.addAnnotatedClass(Discografica.class);
-
 
 				ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
 						.applySettings(configuration.getProperties()).build();
