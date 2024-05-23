@@ -104,13 +104,6 @@ public class App {
 	private JTextField textField;
 	private DatePicker datePickerDiscografica;
 
-	// vaciar las fotos seleccionadas temporalmente
-	public void nullFotos() {
-		fotoAlbum = null;
-		fotoArtista = null;
-		fotoDiscografica = null;
-	}
-
 	// Metodos para cargar datos
 	// Estan sobrecargados, unos es para cargar todos los datos de la tabla y otros
 	// para cargar solo los de los objetos que se le pase a la funcion
@@ -262,13 +255,13 @@ public class App {
 	}
 
 	public void clearArtistaData() {
+		fotoArtista = null;
 		datePickerArtista.setDate(null);
 		txtNombreArtista.setText(null);
 		txtCodigoArtista.setText(null);
 		txtImagenArtista.setText(null);
 		lblFotoArtista.setText(null);
 		lblFotoArtista.setIcon(null);
-
 		txtDiscograficasArtista.setText(null);
 		comboBoxQ.removeAllItems();
 		comboBoxA.removeAllItems();
@@ -276,6 +269,7 @@ public class App {
 	}
 
 	public void clearAlbumData() {
+		fotoAlbum = null;
 		txtCodigoAlbum.setText(null);
 		txtNombreAlbum.setText(null);
 		datePickerAlbum.setDate(null);
@@ -288,6 +282,7 @@ public class App {
 	}
 
 	public void clearDiscograficaData() {
+		fotoDiscografica = null;
 		txtCodigoDiscografica.setText(null);
 		txtNombreDiscografica.setText(null);
 		txtPaisDiscografica.setText(null);
@@ -445,7 +440,7 @@ public class App {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setTitle("Music My");
+		frame.setTitle("MusicMy");
 		frame.setBounds(100, 100, 2000, 900);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -466,11 +461,11 @@ public class App {
 			public void actionPerformed(ActionEvent arg0) {
 				clearAllData();
 				loadAllData();
-				nullFotos();
 			}
 		});
 		mntmMostrarAlbumes.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				clearAllData();
 				loadAlbumes();
 			}
 		});
@@ -1094,17 +1089,22 @@ public class App {
 		btnCrearAlbum.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
-				String artistaS = txtArtistaAlbum.getText();
+				String codArtS = txtArtistaAlbum.getText();
 				String nombre = txtNombreAlbum.getText();
 				String generos = txtGenerosAlbum.getText();
-				String discografica = comboBoxDiscograficaAlbum.getSelectedItem().toString();
+				String discografica;
+				try {
+				 discografica = comboBoxDiscograficaAlbum.getSelectedItem().toString();
+				}catch (NullPointerException e) {
+					JOptionPane.showMessageDialog(frame, "No hay discograficas, cree una discografica por lo menos", "Error Album", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 				String descripcion = txtrDescripcionAlbum.getText();
 
-				if (artistaS == null || artistaS.trim().isEmpty()) {
+				if (codArtS == null || codArtS.trim().isEmpty()) {
 					JOptionPane.showMessageDialog(frame,
 							"Artista no seleccionado, realice un clic en la tabla de artistas", "Error Album",
 							JOptionPane.ERROR_MESSAGE);
-					txtArtistaAlbum.requestFocus();
 					return;
 				}
 
@@ -1154,16 +1154,16 @@ public class App {
 					return;
 				}
 				String codS = txtCodigoAlbum.getText();
-				int artista = Integer.valueOf(artistaS);
+				int codArt = Integer.valueOf(codArtS);
 				LocalDate fecha = datePickerAlbum.getDate();
 
-				album = new Album(nombre, fecha, generos, descripcion, discografica, fotoAlbum, artista);
+				album = new Album(nombre, fecha, generos, descripcion, discografica, fotoAlbum, codArt);
 				albumDAO.insertAlbum(album);
 				album = null;
 
-				albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(txtCodigoArtista.getText()));
+				albums = albumDAO.selectAllAlbumsByArtista(codArt);
 				loadAlbumes(albums);
-				txtArtistaAlbum.setText(String.valueOf(txtCodigoArtista.getText()));
+				txtArtistaAlbum.setText(codArtS);
 
 				clearAlbumData();
 				fotoAlbum = null;
@@ -1192,8 +1192,13 @@ public class App {
 					String codArt = txtArtistaAlbum.getText();
 					String nombre = txtNombreAlbum.getText();
 					String generos = txtGenerosAlbum.getText();
-					String discografica = comboBoxDiscograficaAlbum.getSelectedItem().toString();
-					String descripcion = txtrDescripcionAlbum.getText();
+					String discografica;
+					try {
+					 discografica = comboBoxDiscograficaAlbum.getSelectedItem().toString();
+					}catch (NullPointerException e) {
+						JOptionPane.showMessageDialog(frame, "No hay discograficas, cree una discografica por lo menos", "Error Album", JOptionPane.ERROR_MESSAGE);
+						return;
+					}					String descripcion = txtrDescripcionAlbum.getText();
 					int cod = Integer.valueOf(txtCodigoAlbum.getText());
 					album = albumDAO.selectAlbumById(cod);
 
@@ -1221,7 +1226,7 @@ public class App {
 						txtGenerosAlbum.requestFocus();
 						return;
 					}
-					if (!comprobarER("[A-Za-z ]{1,100}", generos)) {
+					if (!comprobarER("[A-Za-z, ]{1,100}", generos)) {
 						JOptionPane.showMessageDialog(frame,
 								"Generos incorrectos, solo letras, espacios y maximo 100 caracteres", "Error Album",
 								JOptionPane.ERROR_MESSAGE);
@@ -1257,8 +1262,7 @@ public class App {
 					JOptionPane.showMessageDialog(frame, "Album actualizado");
 
 					album = null;
-
-					albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(txtCodigoArtista.getText()));
+					albums = albumDAO.selectAllAlbumsByArtista(Integer.valueOf(codArt));
 					loadAlbumes(albums);
 					txtArtistaAlbum.setText(codArt);
 
@@ -1313,7 +1317,6 @@ public class App {
 				}
 
 				try {
-
 					JFileChooser chooser = new JFileChooser();
 					chooser.showOpenDialog(null);
 					File f = chooser.getSelectedFile();
@@ -1327,6 +1330,7 @@ public class App {
 				} catch (NullPointerException e1) {
 					e1.printStackTrace();
 				}
+
 			}
 		});
 
@@ -1388,7 +1392,6 @@ public class App {
 				}
 
 				clearAllData();
-//				modelAlbum.setRowCount(0);
 				loadDataDiscografica();
 
 				fotoArtista = null;
@@ -1554,6 +1557,7 @@ public class App {
 		tableAlbum.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				clearAlbumData();
 				int index = tableAlbum.getSelectedRow();
 				TableModel modelAlbum = tableAlbum.getModel();
 				int cod = Integer.valueOf(modelAlbum.getValueAt(index, 0).toString());
@@ -1563,12 +1567,9 @@ public class App {
 				datePickerAlbum.setDate(cambiarFormatoFechaJavaNat(modelAlbum.getValueAt(index, 2).toString()));
 				txtGenerosAlbum.setText(modelAlbum.getValueAt(index, 3).toString());
 				comboBoxDiscograficaAlbum.setSelectedItem(modelAlbum.getValueAt(index, 4));
-
-
-				txtArtistaAlbum.setText(String.valueOf(codArtistaSelec));
-
+				txtArtistaAlbum.setText(modelAlbum.getValueAt(tableAlbum.getSelectedRow(), 5).toString());
+				
 				album = albumDAO.selectAlbumById(cod);
-
 				txtrDescripcionAlbum.setText(album.getDescripcion());
 
 				showImg(album, lblFotoAlbum);
@@ -1579,6 +1580,7 @@ public class App {
 		tableDiscografica.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				clearDiscograficaData();
 				int index = tableDiscografica.getSelectedRow();
 				TableModel modelDiscografica = tableDiscografica.getModel();
 				codDiscograficaSelec = (int) modelDiscografica.getValueAt(index, 0);
