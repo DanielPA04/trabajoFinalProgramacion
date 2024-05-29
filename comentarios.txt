@@ -1,0 +1,8 @@
+Nota: 1.25
+
+  Muy buen trabajo, Dani! Todas las pruebas que he realizado han sido con éxito. El diseño del código es ordenado, separado y bien estructurado.
+  Ha mejorado muuuuuuuucho desde tus versiones iniciales (sobre todo en claridad en la GUI!)  y has seguido las indicaciones pautadas. El manual es correcto y bien explicado. Javadoc y Junit correcto tb.
+  Enhorabuena!
+
+  Por ponerle un pero (no es un 'fallo'), cuando tengas un campo textarea (como la descripción del álbum), limita el tamaño de línea para que haga saltos 
+de línea cuando el texto es largo. Eso se hace ponienado la propiedad "lineWrap" del textarea a true.
